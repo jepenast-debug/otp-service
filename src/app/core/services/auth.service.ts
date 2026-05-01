@@ -1,105 +1,190 @@
-import { DestroyableInjector, Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable, from } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import { Environment } from '../../../environments/environment';
 
 // Importamos todas las interfaces
 import { ApiResp } from '../models/api-response';
 import {
-  IdentResp,
-  SecChallengeResp,
-  AuthSuccessResp,
-  MfaSetupResp,
+  IdentResp, 
+  SecChallengeResp, 
+  AuthSuccessResp, 
+  MfaSetupResp, 
   DeliveryResp
 } from '../models/response';
 import {
-  IdentReq,
-  ChallengeValidationReq,
+  IdentReq, 
+  ChallengeValidationReq, 
   OtpValidationReq
 } from '../models/request';
-import { MfaType } from '../models/Enums';
-import { AuthStep } from '../models/Enums';
-import { StepperComp } from '../../shared/components/stepper/stepper';
-
+import { MfaType, AuthStep } from '../models/Enums';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private http = inject(HttpClient);
-  
-  // Base URL apuntando al controlador requerido del backend
   private apiUrl = `${Environment.ApiUrl}/auth`; 
-  private SetUrl=`${Environment.ApiUrl}/setup`; 
+  private SetUrl = `${Environment.ApiUrl}/setup`; 
 
-  // 1. Identificación inicial (Paso 1)
-  IdentifyUser(UserId: IdentReq,Step:AuthStep): Observable<ApiResp<IdentResp>> {
-    let data = {
-      UId: UserId,
-      Step: Step
+  // ==========================================
+  // --- MÉTODOS DE LA API (Código Limpio) ---
+  // ==========================================
+
+  IdentifyUser(UserId: IdentReq, Step: AuthStep): Observable<ApiResp<IdentResp>> {
+    const data = { 
+      UId: UserId, 
+      Step: Step 
     };
-    return this.http.post<ApiResp<IdentResp>>(`${this.apiUrl}/Identify`, data);
+    return this.PostEncrypted<IdentResp>(`${this.apiUrl}/Identify`, data);
   }
 
-  // 2. Solicitar las preguntas de seguridad (Paso 2)
-  GetSecQuestions(UserId: string,Step:AuthStep): Observable<ApiResp<SecChallengeResp>> {
-    let data = {
-      UId: UserId,
-      Step: Step
+  GetSecQuestions(UserId: string, Step: AuthStep): Observable<ApiResp<SecChallengeResp>> {
+    const data = { 
+      UId: UserId, 
+      Step: Step 
     };
-    return this.http.post<ApiResp<SecChallengeResp>>(`${this.apiUrl}/SecQuest`, data);
+    return this.PostEncrypted<SecChallengeResp>(`${this.apiUrl}/SecQuest`, data);
   }
 
-  // 3. Validar las respuestas ingresadas (Paso 2)
-  ValidateSecAnswers(UserId:string, Quest: ChallengeValidationReq,Step:AuthStep): Observable<ApiResp<boolean>> {
-    let data = {
-      UId: UserId,
-      Type: Quest,
-      Step: Step
+  ValidateSecAnswers(UserId: string, Quest: ChallengeValidationReq, Step: AuthStep): Observable<ApiResp<boolean>> {
+    const data = { 
+      UId: UserId, 
+      Type: Quest, 
+      Step: Step 
     };
-    return this.http.post<ApiResp<boolean>>(`${this.apiUrl}/ValAnswers`, data);
+    return this.PostEncrypted<boolean>(`${this.apiUrl}/ValAnswers`, data);
   }
 
-  GetDeliveryMethods(UserId: string,Step:AuthStep): Observable<ApiResp<DeliveryResp>> {
-    let data = {
-      UId: UserId,
-      Step: Step
+  GetDeliveryMethods(UserId: string, Step: AuthStep): Observable<ApiResp<DeliveryResp>> {
+    const data = { 
+      UId: UserId, 
+      Step: Step 
     };
-    return this.http.post<ApiResp<DeliveryResp>>(`${this.apiUrl}/Methods`,data);
+    return this.PostEncrypted<DeliveryResp>(`${this.apiUrl}/Methods`, data);
   }
 
-  SendOtpCode(UserId: string, Type: MfaType,Step:AuthStep): Observable<ApiResp<boolean>> {
-    let data = {
-      UId: UserId,
-      Type: Type,
-      Step: Step
+  SendOtpCode(UserId: string, Type: MfaType, Step: AuthStep): Observable<ApiResp<boolean>> {
+    const data = { 
+      UId: UserId, 
+      Type: Type, 
+      Step: Step 
     };
-    return this.http.post<ApiResp<boolean>>(`${this.apiUrl}/SendCode`, data);
+    return this.PostEncrypted<boolean>(`${this.apiUrl}/SendCode`, data);
   }
 
-  // 4. Configurar nueva App de Autenticación (Paso de Enrolamiento)
   SetupMfa(UserId: string): Observable<ApiResp<MfaSetupResp>> {
-    return this.http.post<ApiResp<MfaSetupResp>>(`${this.SetUrl}/SetupMfa`, { UserId });
+    return this.PostEncrypted<MfaSetupResp>(`${this.SetUrl}/SetupMfa`, { UserId });
   }
 
-  //6. Verificar el codigo de 6 dígitos generado por la App (Paso de Enrolamiento)
-  VerifyMfaSetup(UserId: string, Code: string, Step:AuthStep): Observable<ApiResp<boolean>> {
-    let data = {
-      UId: UserId,
-      Code: Code,
-      Step: Step
+  VerifyMfaSetup(UserId: string, Code: string, Step: AuthStep): Observable<ApiResp<boolean>> {
+    const data = { 
+      UId: UserId, 
+      Code: Code, 
+      Step: Step 
     };
-    return this.http.post<ApiResp<boolean>>(`${this.SetUrl}/VerifyMfaSetup`, data);
+    return this.PostEncrypted<boolean>(`${this.SetUrl}/VerifyMfaSetup`, data);
   }
 
-  // 5. Validar el código de 6  dígitos (Paso 3 y Activación MFA)
-  ValidateOtp(Info:OtpValidationReq, Step:AuthStep): Observable<ApiResp<AuthSuccessResp>> {
-    let data = {
-      UId: Info.UserId,
-      Code: Info.Code,
-      MfaType: Info.MfaType,
-      Step: Step
+  ValidateOtp(Info: OtpValidationReq, Step: AuthStep): Observable<ApiResp<AuthSuccessResp>> {
+    const data = { 
+      UId: Info.UserId, 
+      Code: Info.Code, 
+      MfaType: Info.MfaType, 
+      Step: Step 
     };
-    return this.http.post<ApiResp<AuthSuccessResp>>(`${this.apiUrl}/ValCode`, data);
+    return this.PostEncrypted<AuthSuccessResp>(`${this.apiUrl}/ValCode`, data);
+  }
+
+  // ==========================================
+  // --- MOTOR CRIPTOGRÁFICO CENTRALIZADO ---
+  // ==========================================
+
+  private PostEncrypted<T>(url: string, payload: any): Observable<ApiResp<T>> {
+    // 1. Convertimos la Promesa criptográfica en un Observable
+    return from(this.EncryptSecurePayload(payload)).pipe(
+      switchMap(encryptedBase64 => {
+        // 2. Enviamos la cadena Base64 final
+        return this.http.post<ApiResp<T>>(url, `"${encryptedBase64}"`, {
+          headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+        });
+      })
+    );
+  }
+
+  private async EncryptSecurePayload(payload: any): Promise<string> {
+    const Encoder = new TextEncoder();
+    const DataBytes = Encoder.encode(JSON.stringify(payload));
+
+    // A. Generación de Llaves (AES-256-GCM + IV)
+    const IV = window.crypto.getRandomValues(new Uint8Array(12));
+    const AKEY = await window.crypto.subtle.generateKey(
+      { name: 'AES-GCM', length: 256 },
+      true,
+      ['encrypt']
+    );
+
+    // B. Cifrado del Payload (AES)
+    // Nota para C#: WebCrypto adjunta el 'Authentication Tag' (16 bytes) al final de este buffer automáticamente.
+    const EncrypBuffer = await window.crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv: IV },
+      AKEY,
+      DataBytes
+    );
+
+    // C. Cifrado Asimétrico de las llaves (RSA)
+    const RawAesKey = await window.crypto.subtle.exportKey('raw', AKEY);
+    const RSAKeyBuffer = this.Base64ToArrayBuffer(Environment.CERT);
+    
+    const RSAPubKey = await window.crypto.subtle.importKey(
+      'spki',
+      RSAKeyBuffer,
+      { name: 'RSA-OAEP', hash: 'SHA-256' },
+      false,
+      ['encrypt']
+    );
+
+    const keysObj = {
+      k: this.ArrayBufferToBase64(RawAesKey),
+      i: this.ArrayBufferToBase64(IV.buffer)
+    };
+    const keysBytes = Encoder.encode(JSON.stringify(keysObj));
+
+    const EncryptCEBuffer = await window.crypto.subtle.encrypt(
+      { name: 'RSA-OAEP' },
+      RSAPubKey,
+      keysBytes
+    );
+
+    // D. Ensamblaje Estructural { data, CE }
+    const finalJson = {
+      data: this.ArrayBufferToBase64(EncrypBuffer),
+      CE: this.ArrayBufferToBase64(EncryptCEBuffer)
+    };
+
+    // E. Conversión final: Objeto -> UTF-8 -> Base64
+    const finalJsonStr = JSON.stringify(finalJson);
+    return btoa(unescape(encodeURIComponent(finalJsonStr)));
+  }
+
+  // --- Herramientas de Conversión ---
+
+  private Base64ToArrayBuffer(base64: string): ArrayBuffer {
+    const BinString = atob(base64);
+    const Bytes = new Uint8Array(BinString.length);
+    for (let i = 0; i < BinString.length; i++) {
+      Bytes[i] = BinString.charCodeAt(i);
+    }
+    return Bytes.buffer;
+  }
+
+  private ArrayBufferToBase64(buffer: ArrayBuffer): string {
+    const Bytes = new Uint8Array(buffer);
+    let Binary = '';
+    for (let i = 0; i < Bytes.length; i++) {
+      Binary += String.fromCharCode(Bytes[i]);
+    }
+    return btoa(Binary);
   }
 }
