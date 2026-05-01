@@ -1,26 +1,120 @@
-import { Component, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, signal, inject, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { Location } from '@angular/common'; // Necesario para GoBack()
+import { FormsModule } from '@angular/forms'; // Necesario para capturar el código (ngModel)
+import { SessionService } from '../../core/services/session.service';
+import { AuthService } from '../../core/services/auth.service';
+import { AuthStep } from '../../core/models/Enums'; 
 import { TranslateModule } from '@ngx-translate/core';
-import { QRCodeComponent } from 'angularx-qrcode'; // Importamos el generador
+import { QRCodeComponent } from 'angularx-qrcode';
 
 @Component({
   selector: 'app-mfa-setup',
   standalone: true,
-  imports: [FormsModule, TranslateModule, QRCodeComponent],
+  imports: [FormsModule,TranslateModule,QRCodeComponent], 
   templateUrl: './mfa-setup.html',
   styleUrl: './mfa-setup.scss'
 })
-export class MfaSetupComp {
-  // Esta es la URI que en el futuro vendrá de tu backend en .NET
-  QrData = signal('otpauth://totp/TuApp:usuario@empresa.com?secret=JBSWY3DPEHPK3PXP&issuer=TuApp');
-  
-  // Variable para capturar lo que el usuario digite
-  VerificationCode = signal('');
-  IsLoading = signal(false);
+export class MfaSetupComp implements OnInit {
+  private SessionService = inject(SessionService);
+  private AuthService = inject(AuthService);
+  private Router = inject(Router);
+  private Location = inject(Location);
 
-  VerifySetup() {
+  // Estados visuales y de datos
+  QrImageUrl = signal<string>('');
+  SecretKey = signal<string>('');
+  VerificationCode = signal<string>(''); 
+  IsLoading = signal(false);
+  ErrorMessage = signal('');
+
+  ngOnInit(): void {
+    this.ValidateAccess();
+  }
+
+  // 1. GUARDIÁN DEL COMPONENTE
+  ValidateAccess(): void {
+    const sid = this.SessionService.sid;
+    const Step = this.SessionService.Step;
+
+    if (!sid) {
+      this.Router.navigate(['/identificacion']);
+      return;
+    }
+
+    if (Step < AuthStep.MfaSetup) {
+      this.Router.navigate(['/step3']);
+      return;
+    }
+    this.LoadMfaSetupData();
+  }
+
+  // 2. CARGA DEL CÓDIGO QR
+  LoadMfaSetupData(): void {
+    const sid = this.SessionService.sid;
+    const Step = this.SessionService.Step;
+
+    if (!sid || Step < AuthStep.MfaSetup) return;
+
     this.IsLoading.set(true);
-    console.log('Verificando código de enrolamiento:', this.VerificationCode());
-    // Aquí validaremos el código de 6 dígitos contra el backend
+
+    //TODO: Reemplazar con tu método real del AuthService que trae el QR
+    this.AuthService.SetupMfa(sid).subscribe({
+      next: (Response) => {
+        if (Response.success && Response.data) {
+          this.QrImageUrl.set(Response.data.QRUri);
+          this.SecretKey.set(Response.data.ManualSecret);
+        }
+        this.IsLoading.set(false);
+      },
+      error: () => {
+        this.IsLoading.set(false);
+        this.ErrorMessage.set('Error al generar el código QR.');
+      }
+    });
+    this.IsLoading.set(false);
+  }
+
+  GoBack(): void {
+    this.SessionService.SetStep(AuthStep.Delivery);
+    this.Location.back();
+  }
+
+  // 4. EL VALIDADOR DEL CÓDIGO
+  VerifySetup(): void {
+    const Code = this.VerificationCode().trim();
+    const sid = this.SessionService.sid;
+    const Step = this.SessionService.Step
+
+    this.ErrorMessage.set('');
+
+    if (!sid) {
+      this.ErrorMessage.set('Sesión expirada.');
+      return;
+    }
+
+    if (Code.length < 6) {
+      this.ErrorMessage.set('El código de la aplicación debe tener al menos 6 dígitos.');
+      return;
+    }
+
+    this.IsLoading.set(true);
+
+    // Pasamos el SID y el código generado por la app que acaba de vincular.
+    this.AuthService.VerifyMfaSetup(sid, Code , Step).subscribe({
+      next: (Response) => {
+        if (Response.success) {
+          this.SessionService.SetStep(AuthStep.Delivery);
+          this.Router.navigate(['/step4']);
+        } else {
+          this.IsLoading.set(false);
+          this.ErrorMessage.set('El código es incorrecto o expiró. Inténtelo de nuevo.');
+        }
+      },
+      error: () => {
+        this.IsLoading.set(false);
+        this.ErrorMessage.set('Ocurrió un error al verificar el código.');
+      }
+    });
   }
 }

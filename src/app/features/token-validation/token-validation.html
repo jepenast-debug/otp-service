@@ -4,47 +4,46 @@
   <main class="AuthCard">
     <div class="CardHeader">
       <h2>Validación de Código</h2>
-      <p>Hemos enviado un código de 8 dígitos al método seleccionado. Ingréselo a continuación.</p>
+      <p>Hemos enviado un código de 6 dígitos al método seleccionado. Ingréselo a continuación.</p>
     </div>
 
     <div class="CardBody">
-      <div class="OtpContainer">
-        <div class="OtpInputs">
-          @for (Digit of OtpDigits(); track $index) {
-            <input 
-              type="text" 
-              inputmode="numeric" 
-              maxlength="1" 
-              [value]="Digit"
-              (input)="HandleInput($event, $index)"
-              (keydown)="HandleKeyDown($event, $index)"
-              class="OtpBox"
-              [class.ErrorBox]="ErrorMessage() !== ''"
-              [disabled]="IsLoading()"
-              autocomplete="one-time-code"
-            />
-          }
-        </div>
+      <div class="ValidationBoxes">
+        @for (digit of CodeDigits(); track $index) {
+          <input 
+            #digitInput
+            type="text" 
+            maxlength="1" 
+            [value]="digit"
+            (input)="OnInput($event, $index)"
+            (keydown)="OnKeyDown($event, $index)"
+            (paste)="OnPaste($event, $index)"
+            class="DigitBox"
+            [class.Error]="ErrorMessage() || IsExpired()"
+            [disabled]="IsLoading() || IsExpired()"
+          />
+        }
       </div>
 
       <div class="TimerSection">
-        @if (TimeLeft() > 0) {
-          <span class="TimeText">El código expira en: <strong>{{ FormattedTime() }}</strong></span>
-        } @else {
+        @if (IsExpired()) {
           <span class="ExpiredText">El tiempo ha expirado.</span>
+        } @else {
+          <span class="TimerText">Tiempo restante: 00:{{ TimeLeft() < 10 ? '0' + TimeLeft() : TimeLeft() }}</span>
         }
-
-        <button 
-          class="ResendButton" 
-          (click)="ResendCode()" 
-          [disabled]="!CanResend() || IsLoading()">
+        
+        <button class="LinkButton" (click)="ResendCode()" [disabled]="IsLoading()">
           Reenviar Código
         </button>
       </div>
 
       @if (ErrorMessage()) {
         <div class="ErrorAlert">
-          <span class="AlertIcon">⚠️</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
           {{ ErrorMessage() }}
         </div>
       }
@@ -52,9 +51,9 @@
 
     <div class="CardFooter">
       <button 
-        class="PrimaryButton" 
+        class="PrimaryButton FullWidth" 
         (click)="ValidateToken()" 
-        [disabled]="IsLoading() || TimeLeft() === 0">
+        [disabled]="!IsFormValid() || IsLoading() || IsExpired()">
         
         @if (IsLoading()) {
           <span class="Spinner"></span>

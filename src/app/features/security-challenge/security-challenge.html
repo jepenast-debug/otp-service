@@ -8,16 +8,16 @@
     </div>
 
     <div class="CardBody">
-      @for (item of SecurityQuestions(); track item.id) {
+      @for (item of Questions(); track item.Id) {
         <div class="QuestionGroup">
           <div class="QuestionLabel">
             <span class="Icon">🔒</span>
-            <p>{{ item.key | translate }}</p>
+            <p>{{ item.Key| translate }}</p>
           </div>
           
           <input 
             type="text" 
-            [(ngModel)]="item.answer"
+            [(ngModel)]="item.UserAnswer"
             [placeholder]="'SEC.Placeholder' | translate"
             class="AnswerInput"
           />

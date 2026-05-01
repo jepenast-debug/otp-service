@@ -1,139 +1,179 @@
-import { Component, signal, computed, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, signal, inject, OnInit, ViewChildren, QueryList, ElementRef, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { ApiService } from '../../core/services/api.service';
+import { TranslateModule } from '@ngx-translate/core';
+import { Location } from '@angular/common';
+import { AuthService } from '../../core/services/auth.service';
+import { SessionService } from '../../core/services/session.service';
+import { OtpValidationReq } from '../../core/models/request';
+import { AuthStep, MfaType } from '../../core/models/Enums';
 import { StepperComp } from '../../shared/components/stepper/stepper';
 
 @Component({
   selector: 'app-token-validation',
   standalone: true,
-  imports: [FormsModule, StepperComp],
+  imports: [FormsModule, StepperComp, TranslateModule],
   templateUrl: './token-validation.html',
   styleUrl: './token-validation.scss'
 })
 export class TokenValidationComp implements OnInit, OnDestroy {
-  private Api = inject(ApiService);
+  private AuthService = inject(AuthService);
+  private SessionService = inject(SessionService);
   private Router = inject(Router);
 
-  // Estados
-  OtpDigits = signal<string[]>(new Array(6).fill(''));
-  TimeLeft = signal<number>(300); // 5 minutos = 300 segundos
-  CanResend = signal<boolean>(false);
-  IsLoading = signal<boolean>(false);
-  ErrorMessage = signal<string>('');
-  
+  @ViewChildren('digitInput') digitInputs!: QueryList<ElementRef>;
+
+  CodeDigits = signal<string[]>(['', '', '', '', '', '']);
+  IsLoading = signal(false);
+  ErrorMessage = signal('');
+  IsExpired = signal(false);
+  // Temporizador
+  TimeLeft = signal(300); // 60 segundos
   private TimerInterval: any;
 
-  // Signal computado para mostrar el tiempo en formato MM:SS
-  FormattedTime = computed(() => {
-    const Minutes = Math.floor(this.TimeLeft() / 60);
-    const Seconds = this.TimeLeft() % 60;
-    return `${Minutes.toString().padStart(2, '0')}:${Seconds.toString().padStart(2, '0')}`;
-  });
-
   ngOnInit(): void {
+    this.ValidateAccess();
     this.StartTimer();
   }
 
   ngOnDestroy(): void {
-    this.ClearTimer();
+    clearInterval(this.TimerInterval);
   }
 
-  // --- Lógica del Temporizador ---
+  ValidateAccess(): void {
+    const sid = this.SessionService.sid;
+    if (!sid) {
+      this.Router.navigate(['/identificacion']);
+    }
+  }
+
+  // --- LÓGICA DEL TEMPORIZADOR Y REENVÍO ---
   StartTimer(): void {
-    this.CanResend.set(false);
-    this.TimeLeft.set(300); // Reiniciar a 5 min
-    
+    this.TimeLeft.set(300);
+    this.IsExpired.set(false);
+    this.ErrorMessage.set('');
+    clearInterval(this.TimerInterval);
+
     this.TimerInterval = setInterval(() => {
       if (this.TimeLeft() > 0) {
-        this.TimeLeft.update(Time => Time - 1);
+        this.TimeLeft.set(this.TimeLeft() - 1);
       } else {
-        this.ClearTimer();
-        this.CanResend.set(true);
-        this.ErrorMessage.set('El código ha expirado. Por favor, solicite uno nuevo.');
-        // Opcional: sessionStorage.clear(); this.Router.navigate(['/step1']);
+        this.IsExpired.set(true);
+        clearInterval(this.TimerInterval);
       }
     }, 1000);
   }
 
-  ClearTimer(): void {
-    if (this.TimerInterval) {
-      clearInterval(this.TimerInterval);
-    }
-  }
-
-  // --- Lógica de Interacción de los Cuadros ---
-  HandleInput(Event: any, Index: number): void {
-    const Input = Event.target as HTMLInputElement;
-    const Value = Input.value;
-
-    // Actualizamos el array de valores
-    this.OtpDigits.update(Digits => {
-      const NewDigits = [...Digits];
-      NewDigits[Index] = Value;
-      return NewDigits;
-    });
-
-    this.ErrorMessage.set(''); // Limpiar errores
-
-    // Salto automático al siguiente cuadro
-    if (Value && Index < 5) {
-      const NextInput = Input.nextElementSibling as HTMLInputElement;
-      NextInput?.focus();
-    }
-  }
-
-  HandleKeyDown(Event: KeyboardEvent, Index: number): void {
-    const Input = Event.target as HTMLInputElement;
-
-    // Si presiona Retroceso (Backspace) y el cuadro está vacío, salta al anterior
-    if (Event.key === 'Backspace' && !Input.value && Index > 0) {
-      const PrevInput = Input.previousElementSibling as HTMLInputElement;
-      PrevInput?.focus();
-    }
-  }
-
-  // --- Acciones ---
   ResendCode(): void {
-    if (!this.CanResend()) return;
-    
-    this.IsLoading.set(true);
-    const ChannelId = sessionStorage.getItem('SelectedChannel') || 'CH-1';
-
-    this.Api.SendOtp(ChannelId).subscribe({
-      next: () => {
-        this.IsLoading.set(false);
-        this.ErrorMessage.set('');
-        this.OtpDigits.set(new Array(6).fill('')); // Limpiar cuadros
-        this.StartTimer(); // Reiniciar contador
-      },
-      error: () => {
-        this.IsLoading.set(false);
-        this.ErrorMessage.set('Error al reenviar el código.');
-      }
-    });
-  }
-
-  ValidateToken(): void {
-    const FullToken = this.OtpDigits().join('');
-    
-    if (FullToken.length < 6) {
-      this.ErrorMessage.set('Debe ingresar los 6 dígitos del código.');
+    const sid = this.SessionService.sid;
+    const Step = this.SessionService.Step;
+    const mfaType = sessionStorage.getItem('SelectedMfa') as unknown as MfaType;
+    if (!sid || Step!==AuthStep.OtpValidation) {
+      this.SessionService.Clear();
+      this.Router.navigate(['/step1']);
       return;
     }
 
     this.IsLoading.set(true);
-
-    this.Api.ValidateOtp(FullToken).subscribe({
-      next: () => {
+    this.AuthService.SendOtpCode(sid, mfaType,Step).subscribe({
+      next: (response) => {
         this.IsLoading.set(false);
-        this.ClearTimer();
-        this.Router.navigate(['/step5']); // Éxito!
+        if (response.success) {
+          this.CodeDigits.set(['', '', '', '', '', '']);
+          this.StartTimer();
+        } else {
+          this.ErrorMessage.set('Error al reenviar el código.');
+        }
       },
       error: () => {
         this.IsLoading.set(false);
-        this.ErrorMessage.set('Código inválido o expirado. Verifique e intente nuevamente.');
-        this.OtpDigits.set(new Array(6).fill('')); // Limpiar en caso de error
+        this.ErrorMessage.set('Error de conexión al reenviar el código.');
+      }
+    });
+  }
+
+  // --- LÓGICA DE LAS CAJAS INDIVIDUALES ---
+  // Verifica si el formulario está lleno
+  IsFormValid(): boolean {
+    return this.CodeDigits().every(d => d.trim().length === 1);
+  }
+
+  OnInput(event: Event, index: number): void {
+    const input = event.target as HTMLInputElement;
+    let val = input.value.replace(/[^0-9]/g, ''); // Solo números
+    input.value = val;
+
+    const Current = [...this.CodeDigits()];
+    Current[index] = val;
+    this.CodeDigits.set(Current);
+
+    if (val && index < 5) {
+      this.FocusInput(index + 1); // Salta a la siguiente caja
+    }
+  }
+
+  // Vuelve a la caja anterior si borra estando vacío
+  OnKeyDown(event: KeyboardEvent, index: number): void {
+    if (event.key === 'Backspace' && !this.CodeDigits()[index] && index > 0) {
+      this.FocusInput(index - 1); 
+    }
+  }
+
+  // Permite pegar el código completo
+  OnPaste(event: ClipboardEvent, index: number): void {
+    event.preventDefault();
+    const pastedData = event.clipboardData?.getData('text') || '';
+    const numbers = pastedData.replace(/[^0-9]/g, '').slice(0, 6);
+
+    if (numbers) {
+      const Current = [...this.CodeDigits()];
+      for (let i = 0; i < numbers.length; i++) {
+        if (index + i < 6) {
+          Current[index + i] = numbers[i];
+        }
+      }
+      this.CodeDigits.set(Current);
+      // Foco en la última caja llenada
+      this.FocusInput(Math.min(index + numbers.length, 5));
+    }
+  }
+
+  private FocusInput(index: number): void {
+    const inputs = this.digitInputs.toArray();
+    if (inputs[index]) {
+      inputs[index].nativeElement.focus();
+    }
+  }
+
+  // --- LÓGICA DE VALIDACIÓN FINAL ---
+  ValidateToken(): void {
+    if (!this.IsFormValid()) return;
+
+    const sid = this.SessionService.sid;
+    const Step = this.SessionService.Step;
+    const MfaType = sessionStorage.getItem('SelectedMfa') as unknown as MfaType;
+    const Code = this.CodeDigits().join(''); // Unimos las 6 cajas en un solo string
+
+    this.IsLoading.set(true);
+    this.ErrorMessage.set('');
+
+    const Request: OtpValidationReq = { UserId: sid!, Code: Code, MfaType: MfaType };
+
+    this.AuthService.ValidateOtp(Request, Step).subscribe({
+      next: (Response) => {
+        if (Response.success) {
+          //TODO: Crear una cookie con el dominio y los datos de accessToken
+          sessionStorage.setItem('AccessToken', Response.data.AccessToken);
+          sessionStorage.setItem('Return', Response.data.UrlReturn);
+          this.Router.navigate(['/step5']);
+        } else {
+          this.IsLoading.set(false);
+          this.ErrorMessage.set('Código incorrecto.');
+        }
+      },
+      error: () => {
+        this.IsLoading.set(false);
+        this.ErrorMessage.set('Error al validar el código.');
       }
     });
   }

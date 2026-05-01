@@ -1,42 +1,56 @@
-import { HttpInterceptorFn } from '@angular/common/http';
+import { HttpInterceptorFn, HttpRequest } from '@angular/common/http';
+import { from } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import { Environment } from '../../../environments/environment';
-import * as CryptoJS from 'crypto-js';
-import JSEncrypt from 'jsencrypt';
 
-export const EncryptionInterceptor: HttpInterceptorFn = (Req, Next) => {
-
-  // Solo interceptamos peticiones que envían datos (POST, PUT, PATCH)
-  if (Req.body) {
-    
-    // 1. Generar una Clave AES dinámica y única para esta transacción (256-bit)
-    const DynamicAesKey = CryptoJS.lib.WordArray.random(32).toString(CryptoJS.enc.Base64);
-
-    // 2. Encriptar el cuerpo de la petición (Payload) usando la clave dinámica AES
-    const EncryptedPayload = CryptoJS.AES.encrypt(
-      JSON.stringify(Req.body),
-      DynamicAesKey
-    ).toString();
-
-    // 3. Encriptar la Clave Dinámica AES usando la Clave Pública (RSA)
-    const RsaEncryptor = new JSEncrypt();
-    RsaEncryptor.setPublicKey(Environment.CERT);
-    const EncryptedSecret = RsaEncryptor.encrypt(DynamicAesKey);
-
-    if (!EncryptedSecret) {
-      throw new Error('Fallo crítico: No se pudo generar el envoltorio RSA.');
-    }
-
-    // 4. Reemplazar el cuerpo original con los datos seguros
-    const ClonedRequest = Req.clone({
-      body: {
-        Data: EncryptedPayload, // Los datos cifrados (soporta gigabytes de peso)
-        Key: EncryptedSecret    // La llave para abrirlos (pequeña y super segura)
-      }
-    });
-
-    return Next(ClonedRequest);
+// --- FUNCIONES INTERNAS (Basadas en tu lógica de Hex -> Texto -> Split) ---
+const HexToBytes = (hex: string): Uint8Array => {
+  const bytes = new Uint8Array(hex.length / 2);
+  for (let i = 0; i < hex.length; i += 2) {
+    bytes[i / 2] = parseInt(hex.substring(i, i + 2), 16);
   }
+  return bytes;
+};
 
-  // Si es un GET, pasa derecho sin alteraciones
-  return Next(Req);
+const Encrypt = async (payload: any): Promise<string> => {
+  const EnvBytes = HexToBytes(Environment.AKI);
+  const DecodedEnv = new TextDecoder().decode(EnvBytes);
+  const [KeyT, IvT] = DecodedEnv.split(':');
+
+  const KeyB = new TextEncoder().encode(KeyT);
+  const IvB = new TextEncoder().encode(IvT);
+  const DataB = new TextEncoder().encode(JSON.stringify(payload));
+
+  const CryptoKey = await window.crypto.subtle.importKey(
+    'raw', KeyB as BufferSource, { name: 'AES-GCM' }, false, ['encrypt']
+  );
+
+  const EncrypBuffer = await window.crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv: IvB as BufferSource },
+    CryptoKey,
+    DataB as BufferSource
+  );
+
+  // Convertimos el Buffer a Base64 para enviarlo al backend en C#
+  return btoa(String.fromCharCode(...new Uint8Array(EncrypBuffer)));
+};
+
+// --- EL INTERCEPTOR ---
+export const encryptionInterceptor: HttpInterceptorFn = (req, next) => {
+  // Solo encriptamos si es POST o PUT y tiene cuerpo
+  if ((req.method === 'POST' || req.method === 'PUT') && req.body) {
+    return from(Encrypt(req.body)).pipe(
+      switchMap(encryptedData => {
+        const clonedReq = req.clone({
+          body: { data: encryptedData },
+          setHeaders: {
+            'Content-Type': 'application/json',
+            'X-SID': sessionStorage.getItem('sid') || '' // Adjuntamos el SID en los headers
+          }
+        });
+        return next(clonedReq);
+      })
+    );
+  }
+  return next(req);
 };

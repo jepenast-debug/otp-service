@@ -141,3 +141,37 @@
   flex-direction: column;
   gap: 0.8rem; /* Redujimos la separación entre el input y el botón */
 }
+
+//----------------------
+/* --- NUEVO: Estilos para el Footer y Botón de Atrás --- */
+
+.CardFooter {
+  display: flex;
+  justify-content: flex-start; /* Alinea el botón de volver a la izquierda */
+  padding-top: 1rem;
+  margin-top: 1.5rem;
+  border-top: 1px solid #e2e8f0; /* Línea divisoria sutil */
+}
+
+.SecondaryButton {
+  background-color: transparent;
+  color: #64748b;
+  padding: 10px 20px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px; /* Manteniendo el estilo redondeado de tus otros inputs */
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
+
+  &:hover:not(:disabled) {
+    background-color: #f1f5f9;
+    border-color: #94a3b8;
+    color: #1e293b;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}

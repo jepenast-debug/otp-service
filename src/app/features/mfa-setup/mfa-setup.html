@@ -18,7 +18,7 @@
       <div class="QrSection">
         <div class="QrWrapper">
           <qrcode 
-            [qrdata]="QrData()" 
+            [qrdata]="QrImageUrl()" 
             [width]="180" 
             [errorCorrectionLevel]="'M'">
           </qrcode>
@@ -41,5 +41,14 @@
         </div>
       </div>
     </div>
-  </main>
+
+    <div class="CardFooter" style="margin-top: 1.5rem;">
+      <button 
+        class="SecondaryButton" 
+        (click)="GoBack()" 
+        [disabled]="IsLoading()">
+        Volver
+      </button>
+    </div>
+    </main>
 </div>

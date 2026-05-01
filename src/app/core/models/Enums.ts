@@ -1,10 +1,12 @@
 // --- ENUMS ---
 export enum AuthStep {
+  NULLABLE=0,
   Ident = 1,
   SecChallenge = 2,
-  OtpValidation = 3,
-  MfaSetup = 4,
-  AccessGranted = 5
+  Delivery=3,
+  OtpValidation = 4,
+  MfaSetup = 5,
+  AccessGranted = 6
 }
 
 export enum MfaType {

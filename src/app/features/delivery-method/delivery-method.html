@@ -20,12 +20,12 @@
             
             <div class="ChannelIcon">
               @if (Channel.Type === 'Email') {
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
                   <polyline points="22,6 12,13 2,6"></polyline>
                 </svg>
               } @else {
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
                   <line x1="12" y1="18" x2="12.01" y2="18"></line>
                 </svg>
@@ -34,7 +34,10 @@
             
             <div class="ChannelDetails">
               <span class="ChannelType">{{ Channel.Type === 'Email' ? 'Correo Electrónico' : 'Mensaje SMS' }}</span>
-              <span class="ChannelMask">{{ Channel.MaskedValue }}</span>
+              
+              <span class="ChannelMask">
+                {{ Channel.MaskedValue | mask: (Channel.Type === 'Email' ? 'email' : 'phone') }}
+              </span>
             </div>
 
             <div class="CheckMark">
@@ -49,6 +52,24 @@
         }
 
       </div>
+      @if (!HasAuthApp()) {
+        <div class="MfaPromoBanner">
+          <div class="PromoIcon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+          </div>
+          
+          <div class="PromoText">
+            <strong>App de Autenticación no configurada</strong>
+            <span>Active su MFA para un acceso más rápido y seguro la próxima vez.</span>
+          </div>
+
+          <button class="PromoAction" (click)="GoToMfaSetup()">
+            Configurar
+          </button>
+        </div>
+      }
 
       @if (ErrorMessage()) {
         <div class="ErrorAlert">
@@ -72,7 +93,7 @@
 
       <button 
         class="PrimaryButton" 
-        (click)="SendOtpCode()" 
+        (click)="SelectMethod()" 
         [disabled]="IsLoading() || !SelectedChannelId()">
         
         @if (IsLoading()) {

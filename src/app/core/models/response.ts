@@ -5,6 +5,7 @@ export interface IdentResp {
   UserId: string;
   NextStep: AuthStep;
   IsMfaEnabled: boolean;
+  SId: string;
 }
 
 export interface SecQuest {
@@ -23,6 +24,11 @@ export interface MfaSetupResp {
   BackupCodes: string[]; // Códigos de recuperación
 }
 
+export interface DeliveryResp{
+  Email: string;
+  HasApp: boolean;
+}
+
 export interface AuthSuccessResp {
   AccessToken: string;
   RefreshToken: string;
@@ -34,4 +40,5 @@ export interface AuthSuccessResp {
     Roles: string[];
   };
   Cookies: string[]; // Para almacenar en el navegador
+  UrlReturn: string;
 }

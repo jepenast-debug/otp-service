@@ -1,29 +1,34 @@
 import { Component, signal, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { ApiService } from '../../core/services/api.service';
-import { StepperComp } from '../../shared/components/stepper/stepper';
 import { TranslateModule } from '@ngx-translate/core';
+
+import { StepperComp } from '../../shared/components/stepper/stepper';
+import { AuthService } from '../../core/services/auth.service';
+import { SessionService } from '../../core/services/session.service';
+import { AuthStep } from '../../core/models/Enums';
 
 @Component({
   selector: 'app-user-identification',
   standalone: true,
-  imports: [FormsModule, StepperComp,TranslateModule],
+  imports: [FormsModule, StepperComp, TranslateModule],
   templateUrl: './user-identification.html',
   styleUrl: './user-identification.scss'
 })
 export class UserIdentificationComp {
-  private Api = inject(ApiService);
+  // 1. Inyección de dependencias estandarizada (camelCase)
+  private AuthService = inject(AuthService);
+  private SessionService = inject(SessionService);
   private Router = inject(Router);
 
-  // Estados usando Signals en PascalCase
+  // 2. Estados usando Signals
   UserId = signal('');
   ErrorMessage = signal('');
   IsLoading = signal(false);
 
   ValidateIdentity(): void {
     const InputValue = this.UserId().trim();
-    this.ErrorMessage.set(''); // Limpiar errores previos
+    this.ErrorMessage.set(''); 
 
     if (!InputValue) {
       this.ErrorMessage.set('El campo es obligatorio.');
@@ -41,23 +46,24 @@ export class UserIdentificationComp {
 
     this.IsLoading.set(true);
 
-    // Llamada al backend
-    this.Api.ValidateUser(InputValue).subscribe({
-      next: (Response: any) => {
-        this.IsLoading.set(false);
-        // Simulamos guardar el token transaccional
-        sessionStorage.setItem('SessionId', Response.SessionId || 'TEMP_SESSION_123');
-        this.Router.navigate(['/step2']); // Aquí luego cambiaremos la ruta a /security-challenge
+    const request = { UserID: InputValue };
+    
+    // Llamada al backend usando AuthService
+    this.AuthService.IdentifyUser(request,AuthStep.Ident).subscribe({
+      next: (Response) => {
+        if (Response.success && Response.data.SId) {
+          this.SessionService.SetSid(Response.data.SId);
+          this.SessionService.SetStep(AuthStep.SecChallenge);
+          this.Router.navigate(['/step2']);
+        } else {
+          this.IsLoading.set(false);
+          this.ErrorMessage.set('Error inesperado al validar la identidad.');
+        }
       },
       error: () => {
         this.IsLoading.set(false);
         this.ErrorMessage.set('Usuario no encontrado o inactivo en el sistema.');
       }
     });
-  }
-
-  ContinueToNextStep() {
-    sessionStorage.setItem('userId', 'ID_DEL_USUARIO_AQUI');
-    this.Router.navigate(['/seguridad']);
   }
 }
