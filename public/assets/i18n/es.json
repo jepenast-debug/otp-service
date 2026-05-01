@@ -1,0 +1,49 @@
+{
+  "GENERAL": {
+    "Continue": "Continuar",
+    "Back": "Volver"
+  },
+    "STEPPER": {
+    "Step_1": "Identification",
+    "Step_2": "Security Challenge",
+    "Step_3": "Delivery Method",
+    "Step_4": "Token Validation",
+    "Step_5": "Access Granted"
+  },
+  "ID": {
+    "Title": "Validación de Identidad",
+    "SubTitle": "Ingrese su correo o ID de empleado para comenzar el proceso de autenticación.",
+    "Label": "Credencial de Acceso",
+    "Placeholder": "Ej: jperez@empresa.com o 123456",
+    "Verifying": "Verificando..."
+  },
+  "SEC": {
+    "Title": "Desafío de Seguridad",
+    "SubTitle": "Responda las siguientes preguntas para confirmar su identidad.",
+    "Question_1": "¿Cuál es el nombre de su primera mascota?",
+    "Question_2": "¿Cuál es el nombre de su ciudad de nacimiento?",
+    "Placeholder": "Ingrese su respuesta",
+    "Validate": "Validar"
+  },
+  "AuthOK": {
+    "Title": "Autenticación Exitosa",
+    "SubTitle": "Su identidad ha sido verificada correctamente.",
+    "Message": "Ya puede acceder de forma segura a tus aplicaciones y servicios corporativos.",
+    "GotoPortal": "Ir al Portal"
+  },
+  "Method": {
+    "Title": "Método de envío",
+    "SubTitle": "Seleccione dónde desea recibir su código de seguridad de un solo uso (OTP).",
+    "Type_1": "Correo Electrónico",
+    "Type_2": "MensajeSMS",
+    "Send": "Enviar Codigo"
+  },
+  "Token": {
+    "Title": "Validación de Código",
+    "SubTitle": "Se ha enviado un código de 8 dígitos al método seleccionado. Ingréselo a continuación.",
+    "CodeExpire": "El código expira en:",
+    "ExpireText":"El tiempo ha expirado.",
+    "Resend":"Reenviar Código",
+    "Validate": "Autenticar"
+  }
+}

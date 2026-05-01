@@ -1,0 +1,116 @@
+$primary-blue: #2563eb;
+$primary-hover: #1d4ed8;
+$text-main: #1e293b;
+$text-muted: #64748b;
+$border-light: #e2e8f0;
+$error-red: #ef4444;
+$error-bg: #fef2f2;
+$selected-bg: #eff6ff;
+$hover-bg: #f8fafc;
+
+.ViewContainer { display: flex; flex-direction: column; align-items: center; width: 100%; }
+
+.AuthCard {
+  background-color: #ffffff;
+  border: 1px solid $border-light;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  width: 100%; max-width: 450px;
+  padding: 2rem; box-sizing: border-box;
+
+  .CardHeader {
+    text-align: center; margin-bottom: 2rem;
+    h2 { margin: 0 0 0.5rem 0; color: $text-main; font-size: 1.5rem; font-weight: 700; }
+    p { margin: 0; color: $text-muted; font-size: 0.9rem; line-height: 1.5; }
+  }
+
+  .CardBody {
+    margin-bottom: 2rem;
+
+    .ChannelList {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+
+      .ChannelOption {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border: 1px solid $border-light;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background-color: #ffffff;
+
+        &:hover {
+          background-color: $hover-bg;
+          border-color: #cbd5e1;
+        }
+
+        .ChannelIcon {
+          color: $text-muted;
+          margin-right: 1rem;
+          display: flex;
+          align-items: center;
+        }
+
+        .ChannelDetails {
+          display: flex;
+          flex-direction: column;
+          flex: 1;
+
+          .ChannelType {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: $text-muted;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+          }
+
+          .ChannelMask {
+            font-size: 1rem;
+            font-weight: 500;
+            color: $text-main;
+          }
+        }
+
+        .CheckMark {
+          color: $primary-blue;
+          width: 24px;
+          display: flex;
+          justify-content: flex-end;
+        }
+
+        /* Estado Seleccionado */
+        &.Selected {
+          background-color: $selected-bg;
+          border-color: $primary-blue;
+          box-shadow: 0 0 0 1px $primary-blue; /* Simula un borde más grueso */
+
+          .ChannelIcon { color: $primary-blue; }
+        }
+      }
+    }
+
+    .ErrorAlert {
+      margin-top: 1rem; padding: 0.75rem; background-color: $error-bg;
+      border: 1px solid #fca5a5; border-radius: 8px; color: $error-red;
+      font-size: 0.85rem; font-weight: 500; display: flex; align-items: center; gap: 0.5rem;
+    }
+  }
+
+  /* Mantengo los mismos estilos de botones del Paso 2 */
+  .CardFooter {
+    display: flex; gap: 1rem;
+    .SecondaryButton, .PrimaryButton {
+      flex: 1; padding: 0.75rem; border-radius: 8px; font-size: 0.95rem;
+      font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: all 0.2s ease;
+    }
+    .SecondaryButton { background-color: #ffffff; color: $text-muted; border: 1px solid $border-light; &:hover:not(:disabled) { background-color: #f8fafc; color: $text-main; border-color: #cbd5e1; } &:disabled { opacity: 0.6; cursor: not-allowed; } }
+    .PrimaryButton { background-color: $primary-blue; color: white; border: none; &:hover:not(:disabled) { background-color: $primary-hover; } &:disabled { background-color: #94a3b8; cursor: not-allowed; opacity: 0.7; }
+      .Spinner { width: 16px; height: 16px; border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: white; animation: spin 1s ease-in-out infinite; }
+    }
+  }
+}
+@keyframes spin { to { transform: rotate(360deg); } }

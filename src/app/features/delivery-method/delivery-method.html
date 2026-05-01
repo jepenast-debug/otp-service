@@ -1,0 +1,86 @@
+<div class="ViewContainer">
+  <app-stepper [CurrentStep]="3"></app-stepper>
+
+  <main class="AuthCard">
+    <div class="CardHeader">
+      <h2>Método de Envío</h2>
+      <p>Seleccione dónde desea recibir su código de seguridad de un solo uso (OTP).</p>
+    </div>
+
+    <div class="CardBody">
+      <div class="ChannelList">
+        
+        @for (Channel of AvailableChannels(); track Channel.Id) {
+          <div 
+            class="ChannelOption" 
+            [class.Selected]="SelectedChannelId() === Channel.Id"
+            (click)="SelectChannel(Channel.Id)"
+            role="button"
+            tabindex="0">
+            
+            <div class="ChannelIcon">
+              @if (Channel.Type === 'Email') {
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                  <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+              } @else {
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                  <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                </svg>
+              }
+            </div>
+            
+            <div class="ChannelDetails">
+              <span class="ChannelType">{{ Channel.Type === 'Email' ? 'Correo Electrónico' : 'Mensaje SMS' }}</span>
+              <span class="ChannelMask">{{ Channel.MaskedValue }}</span>
+            </div>
+
+            <div class="CheckMark">
+              @if (SelectedChannelId() === Channel.Id) {
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              }
+            </div>
+
+          </div>
+        }
+
+      </div>
+
+      @if (ErrorMessage()) {
+        <div class="ErrorAlert">
+          <span class="AlertIcon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+          </span>
+          {{ ErrorMessage() }}
+        </div>
+      }
+    </div>
+
+    <div class="CardFooter">
+      <button 
+        class="SecondaryButton" 
+        (click)="GoBack()" 
+        [disabled]="IsLoading()">
+        Volver
+      </button>
+
+      <button 
+        class="PrimaryButton" 
+        (click)="SendOtpCode()" 
+        [disabled]="IsLoading() || !SelectedChannelId()">
+        
+        @if (IsLoading()) {
+          <span class="Spinner"></span>
+        } @else {
+          Enviar Código
+        }
+      </button>
+    </div>
+  </main>
+</div>

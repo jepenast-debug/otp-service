@@ -1,0 +1,67 @@
+<div class="ViewContainer">
+  <app-stepper [CurrentStep]="4"></app-stepper>
+
+  <main class="AuthCard">
+    <div class="CardHeader">
+      <h2>Validación de Código</h2>
+      <p>Hemos enviado un código de 8 dígitos al método seleccionado. Ingréselo a continuación.</p>
+    </div>
+
+    <div class="CardBody">
+      <div class="OtpContainer">
+        <div class="OtpInputs">
+          @for (Digit of OtpDigits(); track $index) {
+            <input 
+              type="text" 
+              inputmode="numeric" 
+              maxlength="1" 
+              [value]="Digit"
+              (input)="HandleInput($event, $index)"
+              (keydown)="HandleKeyDown($event, $index)"
+              class="OtpBox"
+              [class.ErrorBox]="ErrorMessage() !== ''"
+              [disabled]="IsLoading()"
+              autocomplete="one-time-code"
+            />
+          }
+        </div>
+      </div>
+
+      <div class="TimerSection">
+        @if (TimeLeft() > 0) {
+          <span class="TimeText">El código expira en: <strong>{{ FormattedTime() }}</strong></span>
+        } @else {
+          <span class="ExpiredText">El tiempo ha expirado.</span>
+        }
+
+        <button 
+          class="ResendButton" 
+          (click)="ResendCode()" 
+          [disabled]="!CanResend() || IsLoading()">
+          Reenviar Código
+        </button>
+      </div>
+
+      @if (ErrorMessage()) {
+        <div class="ErrorAlert">
+          <span class="AlertIcon">⚠️</span>
+          {{ ErrorMessage() }}
+        </div>
+      }
+    </div>
+
+    <div class="CardFooter">
+      <button 
+        class="PrimaryButton" 
+        (click)="ValidateToken()" 
+        [disabled]="IsLoading() || TimeLeft() === 0">
+        
+        @if (IsLoading()) {
+          <span class="Spinner"></span>
+        } @else {
+          Autenticar
+        }
+      </button>
+    </div>
+  </main>
+</div>

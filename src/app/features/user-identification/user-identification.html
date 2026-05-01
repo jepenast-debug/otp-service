@@ -1,0 +1,50 @@
+<div class="ViewContainer">
+  
+  <app-stepper [CurrentStep]="1"></app-stepper>
+
+  <main class="AuthCard">
+    <div class="CardHeader">
+      <h2>{{ 'ID.Title' | translate }}</h2>
+      <p>{{ 'ID.SubTitle' | translate }}</p>
+    </div>
+
+    <div class="CardBody">
+      <div class="InputGroup">
+        <label for="userId">{{ 'ID.Label' | translate }}</label>
+        
+        <input 
+          type="text" 
+          id="userId"
+          [placeholder]="'ID.Placeholder' | translate"
+          [ngModel]="UserId()" 
+          (ngModelChange)="UserId.set($event)"
+          (keyup.enter)="ValidateIdentity()"
+          [class.InputError]="ErrorMessage() !== ''"
+          [disabled]="IsLoading()"
+          autocomplete="off"
+        />
+      </div>
+
+      @if (ErrorMessage()) {
+        <div class="ErrorAlert">
+          <span class="AlertIcon">⚠️</span>
+          {{ ErrorMessage() }}
+        </div>
+      }
+    </div>
+
+    <div class="CardFooter">
+      <button 
+        class="PrimaryButton" 
+        (click)="ValidateIdentity()" 
+        [disabled]="IsLoading()">
+        
+        @if (IsLoading()) {
+          <span class="Spinner"></span> {{ 'ID.Verifying' | translate }}
+        } @else {
+          {{ 'GENERAL.Continue' | translate }}
+        }
+      </button>
+    </div>
+  </main>
+</div>

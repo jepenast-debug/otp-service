@@ -1,0 +1,13 @@
+/* src/styles.scss */
+
+html, body {
+  margin: 0 !important;
+  padding: 0;
+  width: 100%;
+  
+  /* Tipografía moderna (Apple/Windows nativa) */
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  
+  /* Fondo grisáceo claro moderno que combina con el Header */
+  background: #f8fafc;
+}

@@ -1,0 +1,34 @@
+<div class="ViewContainer">
+  <app-stepper [CurrentStep]="5"></app-stepper>
+
+  <main class="AuthCard SuccessCard">
+    
+    <div class="SuccessIconContainer">
+      <div class="IconRing">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="CheckIcon">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+      </div>
+    </div>
+
+    <div class="CardHeader">
+      <h2>¡Autenticación Exitosa!</h2>
+      <p>Su identidad ha sido verificada correctamente.</p>
+    </div>
+
+    <div class="CardBody">
+      <div class="InfoBox">
+        <p>Ya puede acceder de forma segura a tus aplicaciones y servicios corporativos.</p>
+      </div>
+    </div>
+
+    <div class="CardFooter">
+      <button 
+        class="PrimaryButton" 
+        (click)="GoToDashboard()">
+        Ingresar al Portal
+      </button>
+    </div>
+  </main>
+</div>

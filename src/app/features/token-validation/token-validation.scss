@@ -1,0 +1,123 @@
+/* Variables base del tema Modern Light */
+$primary-blue: #2563eb;
+$primary-hover: #1d4ed8;
+$text-main: #1e293b;
+$text-muted: #64748b;
+$border-light: #cbd5e1;
+$error-red: #ef4444;
+$error-bg: #fef2f2;
+$bg-input: #f8fafc;
+
+.ViewContainer { display: flex; flex-direction: column; align-items: center; width: 100%; }
+
+.AuthCard {
+  background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  width: 100%; max-width: 500px; /* Un poco más ancho para los 8 inputs */
+  padding: 2rem; box-sizing: border-box;
+
+  .CardHeader {
+    text-align: center; margin-bottom: 2rem;
+    h2 { margin: 0 0 0.5rem 0; color: $text-main; font-size: 1.5rem; font-weight: 700; }
+    p { margin: 0; color: $text-muted; font-size: 0.9rem; line-height: 1.5; }
+  }
+
+  .CardBody {
+    margin-bottom: 2rem;
+
+    .OtpContainer {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+
+      .OtpInputs {
+        display: flex;
+        gap: 0.5rem; /* Espacio entre los cuadritos */
+        
+        .OtpBox {
+          width: 40px;
+          height: 50px;
+          border: 1px solid $border-light;
+          border-radius: 8px;
+          background-color: $bg-input;
+          font-size: 1.25rem;
+          font-weight: 700;
+          color: $text-main;
+          text-align: center;
+          transition: all 0.2s ease;
+          
+          /* Ocultar flechas en inputs tipo numérico si se usa type="number" */
+          &::-webkit-outer-spin-button, &::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+          &[type=number] { -moz-appearance: textfield; }
+
+          &:focus {
+            outline: none;
+            border-color: $primary-blue;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+            transform: translateY(-2px); /* Pequeño salto visual al enfocar */
+          }
+
+          &.ErrorBox {
+            border-color: $error-red;
+            color: $error-red;
+            background-color: $error-bg;
+          }
+
+          &:disabled { opacity: 0.6; cursor: not-allowed; }
+        }
+      }
+    }
+
+    .TimerSection {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 0.5rem;
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+
+      .TimeText { color: $text-muted; strong { color: $primary-blue; } }
+      .ExpiredText { color: $error-red; font-weight: 600; }
+
+      .ResendButton {
+        background: none; border: none; padding: 0;
+        color: $primary-blue; font-weight: 600; cursor: pointer;
+        text-decoration: underline; transition: color 0.2s ease;
+
+        &:hover:not(:disabled) { color: $primary-hover; }
+        &:disabled { color: #94a3b8; text-decoration: none; cursor: not-allowed; }
+      }
+    }
+
+    .ErrorAlert {
+      margin-top: 1rem; padding: 0.75rem; background-color: $error-bg;
+      border: 1px solid #fca5a5; border-radius: 8px; color: $error-red;
+      font-size: 0.85rem; font-weight: 500; display: flex; align-items: center; gap: 0.5rem;
+    }
+  }
+
+  .CardFooter {
+    .PrimaryButton {
+      width: 100%; padding: 0.75rem; background-color: $primary-blue; color: white;
+      border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer;
+      display: flex; justify-content: center; align-items: center; gap: 0.5rem; transition: background-color 0.2s ease;
+
+      &:hover:not(:disabled) { background-color: $primary-hover; }
+      &:disabled { background-color: #94a3b8; cursor: not-allowed; opacity: 0.8; }
+      
+      .Spinner { width: 16px; height: 16px; border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: white; animation: spin 1s ease-in-out infinite; }
+    }
+  }
+}
+
+/* Ajustes responsivos para pantallas muy pequeñas (ej. iPhone SE) */
+@media (max-width: 480px) {
+  .AuthCard .CardBody .OtpContainer .OtpInputs {
+    gap: 0.25rem;
+    .OtpBox { width: 32px; height: 42px; font-size: 1.1rem; }
+  }
+  .TimerSection { flex-direction: column; gap: 0.5rem; align-items: flex-start !important; }
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }

@@ -1,0 +1,62 @@
+/* VARIABLES */
+$primary-blue: #2563eb;
+$muted-gray: #e2e8f0;
+$bg-white: #ffffff;
+
+/* 1. EL TRUCO DE ANGULAR: Forzar al componente a ocupar el ancho real */
+:host {
+  display: block;
+  width: 100%;
+}
+
+/* 2. EL CONTENEDOR */
+.StepperContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 450px; /* Ancho exacto de tu tarjeta */
+  margin: 0 auto 2.5rem auto;
+}
+
+/* 3. LOS CÍRCULOS */
+.StepWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+
+  .StepCircle {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: $bg-white; 
+    border: 3px solid $muted-gray; 
+    transition: all 0.3s ease;
+  }
+
+  &.Completed .StepCircle {
+    background-color: $primary-blue;
+    border-color: $primary-blue;
+  }
+
+  &.Active .StepCircle {
+    background-color: $bg-white;
+    border-color: $primary-blue;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
+  }
+}
+
+/* 4. LAS LÍNEAS CONECTORAS */
+.StepConnector {
+  flex: 1; /* Ahora sí podrá estirarse libremente */
+  height: 4px;
+  background-color: $muted-gray;
+  z-index: 1;
+  margin: 0 -2px; /* Evita huecos entre la línea y el borde del círculo */
+  transition: background-color 0.3s ease;
+
+  &.CompletedLine {
+    background-color: $primary-blue;
+  }
+}

@@ -1,0 +1,143 @@
+/* --- Estilos Contenedores (Faltaban aquí) --- */
+.ViewContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 90vh;
+  background-color: #f8fafc; /* Mismo fondo gris claro que el resto de la app */
+}
+
+/* Reutilizamos los estilos de inputs y botones de tus otros componentes */
+.AnswerInput {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.2s;
+
+  &:focus {
+    border-color: #3b82f6;
+  }
+}
+
+.CodeInput {
+  text-align: center;
+  font-size: 1.5rem;
+  letter-spacing: 0.5rem;
+  font-weight: bold;
+  color: #1e293b;
+}
+
+.PrimaryButton {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  font-size: 1rem;
+  background-color: #2563eb;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background-color: #1d4ed8;
+  }
+
+  &:disabled {
+    background-color: #94a3b8;
+    cursor: not-allowed;
+  }
+}
+
+/* Responsivo: Si la pantalla es pequeña (móviles), pasa a una sola columna */
+@media (max-width: 768px) {
+  .MfaGrid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+//----------------------
+/* Redujimos el padding general de la tarjeta y su ancho máximo */
+.AuthCard.MfaCard {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem 2.5rem; /* Antes: 2.5rem en todos lados. Ahora menos alto */
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 700px; /* Antes: 800px. Lo hace más compacto */
+}
+
+/* Redujimos el espacio debajo del título */
+.CardHeader {
+  text-align: center;
+  margin-bottom: 1.5rem; /* Antes: 2.5rem */
+  
+  h2 {
+    color: #1e293b;
+    font-size: 1.5rem; /* Un poco más proporcionado */
+    margin-bottom: 0.2rem;
+  }
+  
+  p {
+    color: #64748b;
+    font-size: 0.95rem;
+    margin: 0;
+  }
+}
+
+/* Acercamos la columna de texto a la del QR */
+.MfaGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem; /* Antes: 3rem */
+  align-items: center;
+}
+
+/* Apretamos el interlineado y los espacios de la lista */
+.Instructions {
+  ol {
+    padding-left: 1.2rem;
+    color: #475569;
+    line-height: 1.4; /* Antes: 1.8 */
+    margin: 0;
+    
+    li {
+      margin-bottom: 0.8rem; /* Antes: 1.2rem */
+      font-size: 0.95rem;
+      &::marker {
+        color: #2563eb;
+        font-weight: bold;
+      }
+    }
+  }
+}
+
+/* Redujimos los espacios internos de la caja azul del QR */
+.QrSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem; /* Antes: 1.5rem */
+  padding: 1rem; /* Antes: 1.5rem */
+  background-color: #f0f7ff;
+  border-radius: 12px;
+  border: 1px solid #d1e7ff;
+}
+
+.QrWrapper {
+  padding: 5px; /* Antes: 10px */
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.ValidationGroup {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem; /* Redujimos la separación entre el input y el botón */
+}

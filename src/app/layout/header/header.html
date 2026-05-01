@@ -1,0 +1,29 @@
+<header class="CorporateHeader">
+  <div class="HeaderLeft">
+    <div class="LogoContainer">
+      <div class="LogoIcon">SV</div>
+      <div class="LogoText">
+        <span class="Company">SOVYS</span>
+        <span class="Solutions">Solutions</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="HeaderRight">
+    <div class="SelectWrapper">
+      <select 
+        [ngModel]="CurrentLanguage()" 
+        (change)="ChangeLanguage($event)" 
+        class="LanguageSelect">
+        @for (Lang of Languages; track Lang.Code) {
+          <option [value]="Lang.Code">{{ Lang.Name }}</option>
+        }
+      </select>
+      <div class="SelectIcon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </div>
+    </div>
+  </div>
+</header>

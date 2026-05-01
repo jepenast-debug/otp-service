@@ -1,0 +1,61 @@
+$bg-light: #ffffff;
+$border-light: #e2e8f0;
+$text-muted: #64748b;
+$link-hover: #2563eb; /* Azul del logo */
+
+.CorporateFooter {
+  background-color: $bg-light;
+  border-top: 1px solid $border-light;
+  padding: 1.5rem 2rem;
+  width: 100%;
+  box-sizing: border-box;
+
+  .FooterContent {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .Copyright {
+    margin: 0;
+    color: $text-muted;
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+
+  .FooterLinks {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    a {
+      color: $text-muted;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: color 0.2s ease;
+
+      &:hover {
+        color: $link-hover;
+      }
+    }
+
+    .Separator {
+      color: #cbd5e1;
+      font-size: 0.8rem;
+    }
+  }
+
+  /* Responsividad para móviles */
+  @media (max-width: 600px) {
+    .FooterContent {
+      flex-direction: column;
+      text-align: center;
+      justify-content: center;
+    }
+  }
+}

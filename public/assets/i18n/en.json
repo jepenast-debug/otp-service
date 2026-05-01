@@ -1,0 +1,20 @@
+{
+  "GENERAL": {
+    "Continue": "Continue",
+    "Back": "Go Back"
+  },
+  "STEPPER": {
+    "STEP_1": "Identification",
+    "STEP_2": "Security Challenge",
+    "STEP_3": "Delivery Method",
+    "STEP_4": "Token Validation",
+    "STEP_5": "Access Granted"
+  },
+  "ID": {
+    "Title": "Identity Validation",
+    "SubTitle": "Enter your email or employee ID to begin the authentication process.",
+    "Label": "Access Credential",
+    "Placeholder": "Ex: jsmith@company.com or 123456",
+    "Verifying": "Verifying..."
+  }
+}

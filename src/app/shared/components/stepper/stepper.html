@@ -1,0 +1,15 @@
+<div class="StepperContainer">
+  @for (Step of Steps; track Step.Id; let IsLast = $last) {
+    
+    <div class="StepWrapper" 
+         [class.Active]="Step.Id === CurrentStep()" 
+         [class.Completed]="Step.Id < CurrentStep()">
+      <div class="StepCircle"></div>
+    </div>
+
+    @if (!IsLast) {
+      <div class="StepConnector" [class.CompletedLine]="Step.Id < CurrentStep()"></div>
+    }
+    
+  }
+</div>

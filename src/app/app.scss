@@ -1,0 +1,17 @@
+/* Esto convierte a toda la aplicación en una columna de pantalla completa */
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* El 'flex: 1' obliga al main a expandirse, empujando el footer hacia el fondo */
+.Container {
+  flex: 1; 
+  padding: 2rem;
+  /* Opcional: Centrar el contenido de los pasos del OTP en la pantalla */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; 
+}

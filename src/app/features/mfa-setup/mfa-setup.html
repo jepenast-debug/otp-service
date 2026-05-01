@@ -1,0 +1,45 @@
+<div class="ViewContainer">
+  <main class="AuthCard MfaCard">
+    <div class="CardHeader">
+      <h2>Configurar Autenticador</h2>
+      <p>Protege tu cuenta con seguridad de dos pasos.</p>
+    </div>
+
+    <div class="MfaGrid">
+      <div class="Instructions">
+        <ol>
+          <li>Descarga <strong>Google Authenticator</strong> o <strong>Microsoft Authenticator</strong> en tu celular.</li>
+          <li>Abre la aplicación y selecciona el ícono <strong>"+"</strong> para agregar una cuenta.</li>
+          <li>Selecciona <strong>"Escanear código QR"</strong> y enfoca la imagen de la derecha.</li>
+          <li>Ingresa el código de 6 dígitos que aparece en tu celular para verificar la vinculación.</li>
+        </ol>
+      </div>
+
+      <div class="QrSection">
+        <div class="QrWrapper">
+          <qrcode 
+            [qrdata]="QrData()" 
+            [width]="180" 
+            [errorCorrectionLevel]="'M'">
+          </qrcode>
+        </div>
+
+        <div class="ValidationGroup">
+          <input 
+            type="text" 
+            maxlength="6" 
+            placeholder="000000"
+            [(ngModel)]="VerificationCode"
+            class="AnswerInput CodeInput"
+          />
+          <button 
+            class="PrimaryButton" 
+            (click)="VerifySetup()" 
+            [disabled]="IsLoading() || VerificationCode().length !== 6">
+            Verificar y Activar
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

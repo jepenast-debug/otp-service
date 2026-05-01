@@ -1,0 +1,37 @@
+<div class="ViewContainer">
+  <app-stepper [CurrentStep]="2"></app-stepper>
+
+  <main class="AuthCard">
+    <div class="CardHeader">
+      <h2>{{ 'SEC.Title' | translate }}</h2>
+      <p>{{ 'SEC.SubTitle' | translate }}</p>
+    </div>
+
+    <div class="CardBody">
+      @for (item of SecurityQuestions(); track item.id) {
+        <div class="QuestionGroup">
+          <div class="QuestionLabel">
+            <span class="Icon">🔒</span>
+            <p>{{ item.key | translate }}</p>
+          </div>
+          
+          <input 
+            type="text" 
+            [(ngModel)]="item.answer"
+            [placeholder]="'SEC.Placeholder' | translate"
+            class="AnswerInput"
+          />
+        </div>
+      }
+    </div>
+
+    <div class="CardFooter flex-row">
+      <button type="button" class="SecondaryButton" (click)="GoBack()">
+        {{ 'GENERAL.Back' | translate }}
+      </button>
+      <button type="button" class="PrimaryButton" (click)="ValidateAnswers()" [disabled]="IsLoading()">
+        {{ 'SEC.Validate' | translate }}
+      </button>
+    </div>
+  </main>
+</div>
