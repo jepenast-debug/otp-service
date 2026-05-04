@@ -5,11 +5,10 @@ import { TranslateModule } from '@ngx-translate/core';
 
 import { StepperComp } from '../../shared/components/stepper/stepper';
 import { AuthService } from '../../core/services/auth.service';
-import { SessionService } from '../../core/services/session.service';
 import { SecQuest } from '../../core/models/response';
 import { ChallengeValidationReq, SecAnswerReq } from '../../core/models/request';
 import { AuthStep } from '../../core/models/Enums';
-import { Location } from '@angular/common'; 
+import { HandleSession } from '../../core/Handle/HandleSession';
 
 interface SecQuestUI extends SecQuest {
   UserAnswer?: string;
@@ -24,9 +23,8 @@ interface SecQuestUI extends SecQuest {
 })
 export class SecurityChallengeComp implements OnInit {
   private AuthService = inject(AuthService);
-  private SessionService = inject(SessionService);
   private Router = inject(Router);
-  private Location = inject(Location);
+  private HandSession = inject(HandleSession);
 
   // Signals para el estado de la vista
   Questions = signal<SecQuestUI[]>([]);
@@ -38,16 +36,12 @@ export class SecurityChallengeComp implements OnInit {
   }
 
   LoadQuestions(): void {
-    const sid = this.SessionService.sid;
-    const Step=this.SessionService.Step;
-
-    if (!sid || Step !== AuthStep.SecChallenge) {
-      this.Router.navigate(['/step1']);
+     if (!this.HandSession.CheckStep(AuthStep.SecChallenge)) {
       return;
     }
 
     this.IsLoading.set(true);
-    this.AuthService.GetSecQuestions(sid,Step).subscribe({
+    this.AuthService.GetSecQuestions().subscribe({
       next: (Response) => {
         if (Response.success && Response.data.Questions) {
           this.Questions.set(Response.data.Questions);
@@ -62,9 +56,9 @@ export class SecurityChallengeComp implements OnInit {
   }
 
   ValidateAnswers(): void {
-    const sid = this.SessionService.sid;
-    const Step=this.SessionService.Step;
-    if (!sid || Step !== AuthStep.SecChallenge) return;
+    if (this.HandSession.CheckStep(AuthStep.SecChallenge)) {
+      return;
+    }
 
     // 1. Mapeamos las respuestas
     const Answers: SecAnswerReq[] = this.Questions().map(q => ({
@@ -80,11 +74,11 @@ export class SecurityChallengeComp implements OnInit {
     this.IsLoading.set(true);
 
     const request: ChallengeValidationReq = {
-      UserId: sid,  //token de sesion, identifica al usuario
+      UserId: this.HandSession.GetSid(),
       Answers: Answers
     };
 
-    this.AuthService.ValidateSecAnswers(sid,request,Step).subscribe({
+    this.AuthService.ValidateSecAnswers(request).subscribe({
       next: (response) => {
         if (response.success) {
           this.Router.navigate(['/step3']);
@@ -101,8 +95,7 @@ export class SecurityChallengeComp implements OnInit {
   }
 
    GoBack(): void {
-    this.SessionService.SetStep(AuthStep.Ident)
-    this.Location.back();
+    this.HandSession.MoveStep(AuthStep.Ident);
     // Alternativamente: this.router.navigate(['/step1']);
   }
 }

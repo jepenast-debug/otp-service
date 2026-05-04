@@ -63,12 +63,12 @@ const Decrypt = async (EncrypB64: string): Promise<any> => {
 };
 
 // --- EL INTERCEPTOR ---
-export const securityInterceptor: HttpInterceptorFn = (req, next) => {
+export const SecurityInterceptor: HttpInterceptorFn = (req, next) => {
   return next(req).pipe(
     switchMap(event => {
       if (event instanceof HttpResponse && event.body) {
-        // Extraemos los datos cifrados (Ajusta esto según la estructura exacta de tu API)
-        const EncrypData = typeof event.body === 'string' ? event.body : event.body.data;
+        const bodyData = event.body as any;
+        const EncrypData = typeof event.body === 'string' ? event.body : bodyData.data;
         if (EncrypData) {
           return from(Decrypt(EncrypData)).pipe(
             map(decryptedBody => event.clone({ body: decryptedBody })),

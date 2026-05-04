@@ -1,11 +1,9 @@
 import { Component, signal, inject } from '@angular/core';
-import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-
+import { HandleSession } from '../../core/Handle/HandleSession';
 import { StepperComp } from '../../shared/components/stepper/stepper';
 import { AuthService } from '../../core/services/auth.service';
-import { SessionService } from '../../core/services/session.service';
 import { AuthStep } from '../../core/models/Enums';
 
 @Component({
@@ -18,8 +16,7 @@ import { AuthStep } from '../../core/models/Enums';
 export class UserIdentificationComp {
   // 1. Inyección de dependencias estandarizada (camelCase)
   private AuthService = inject(AuthService);
-  private SessionService = inject(SessionService);
-  private Router = inject(Router);
+  private HandSession = inject(HandleSession);
 
   // 2. Estados usando Signals
   UserId = signal('');
@@ -52,9 +49,8 @@ export class UserIdentificationComp {
     this.AuthService.IdentifyUser(request,AuthStep.Ident).subscribe({
       next: (Response) => {
         if (Response.success && Response.data.SId) {
-          this.SessionService.SetSid(Response.data.SId);
-          this.SessionService.SetStep(AuthStep.SecChallenge);
-          this.Router.navigate(['/step2']);
+          this.HandSession.SetSId(Response.data.SId);
+          this.HandSession.MoveStep(AuthStep.SecChallenge);
         } else {
           this.IsLoading.set(false);
           this.ErrorMessage.set('Error inesperado al validar la identidad.');

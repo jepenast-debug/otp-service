@@ -1,13 +1,11 @@
 import { Component, signal, inject, OnInit, ViewChildren, QueryList, ElementRef, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { Location } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
-import { SessionService } from '../../core/services/session.service';
 import { OtpValidationReq } from '../../core/models/request';
 import { AuthStep, MfaType } from '../../core/models/Enums';
 import { StepperComp } from '../../shared/components/stepper/stepper';
+import { HandleSession } from '../../core/Handle/HandleSession';
 
 @Component({
   selector: 'app-token-validation',
@@ -18,8 +16,7 @@ import { StepperComp } from '../../shared/components/stepper/stepper';
 })
 export class TokenValidationComp implements OnInit, OnDestroy {
   private AuthService = inject(AuthService);
-  private SessionService = inject(SessionService);
-  private Router = inject(Router);
+  private HandleSession = inject(HandleSession);
 
   @ViewChildren('digitInput') digitInputs!: QueryList<ElementRef>;
 
@@ -32,7 +29,7 @@ export class TokenValidationComp implements OnInit, OnDestroy {
   private TimerInterval: any;
 
   ngOnInit(): void {
-    this.ValidateAccess();
+    //this.ValidateAccess();
     this.StartTimer();
   }
 
@@ -41,9 +38,8 @@ export class TokenValidationComp implements OnInit, OnDestroy {
   }
 
   ValidateAccess(): void {
-    const sid = this.SessionService.sid;
-    if (!sid) {
-      this.Router.navigate(['/identificacion']);
+    if (this.HandleSession.CheckStep(AuthStep.OtpValidation)) {
+      return;
     }
   }
 
@@ -65,17 +61,15 @@ export class TokenValidationComp implements OnInit, OnDestroy {
   }
 
   ResendCode(): void {
-    const sid = this.SessionService.sid;
-    const Step = this.SessionService.Step;
     const mfaType = sessionStorage.getItem('SelectedMfa') as unknown as MfaType;
-    if (!sid || Step!==AuthStep.OtpValidation) {
-      this.SessionService.Clear();
-      this.Router.navigate(['/step1']);
+    if (this.HandleSession.CheckStep(AuthStep.OtpValidation)) {
+      this.HandleSession.ClearSession();
+      this.HandleSession.MoveStep(AuthStep.Ident);
       return;
     }
 
     this.IsLoading.set(true);
-    this.AuthService.SendOtpCode(sid, mfaType,Step).subscribe({
+    this.AuthService.SendOtpCode(mfaType).subscribe({
       next: (response) => {
         this.IsLoading.set(false);
         if (response.success) {
@@ -149,8 +143,7 @@ export class TokenValidationComp implements OnInit, OnDestroy {
   ValidateToken(): void {
     if (!this.IsFormValid()) return;
 
-    const sid = this.SessionService.sid;
-    const Step = this.SessionService.Step;
+    const sid = this.HandleSession.GetSid();
     const MfaType = sessionStorage.getItem('SelectedMfa') as unknown as MfaType;
     const Code = this.CodeDigits().join(''); // Unimos las 6 cajas en un solo string
 
@@ -159,13 +152,14 @@ export class TokenValidationComp implements OnInit, OnDestroy {
 
     const Request: OtpValidationReq = { UserId: sid!, Code: Code, MfaType: MfaType };
 
-    this.AuthService.ValidateOtp(Request, Step).subscribe({
+    this.AuthService.ValidateOtp(Request).subscribe({
       next: (Response) => {
         if (Response.success) {
           //TODO: Crear una cookie con el dominio y los datos de accessToken
-          sessionStorage.setItem('AccessToken', Response.data.AccessToken);
-          sessionStorage.setItem('Return', Response.data.UrlReturn);
-          this.Router.navigate(['/step5']);
+          this.HandleSession.SetRespItem('AccessToken', Response.data.AccessToken);
+          this.HandleSession.SetRespItem('Return', Response.data.UrlReturn);
+          this.HandleSession.CreateCookie('AToken', Response.data.AccessToken); // Cookie válida por 1 día
+          this.HandleSession.MoveStep(AuthStep.AccessGranted);
         } else {
           this.IsLoading.set(false);
           this.ErrorMessage.set('Código incorrecto.');

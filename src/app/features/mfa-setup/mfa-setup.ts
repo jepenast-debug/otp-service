@@ -2,11 +2,11 @@ import { Component, signal, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common'; // Necesario para GoBack()
 import { FormsModule } from '@angular/forms'; // Necesario para capturar el código (ngModel)
-import { SessionService } from '../../core/services/session.service';
 import { AuthService } from '../../core/services/auth.service';
 import { AuthStep } from '../../core/models/Enums'; 
 import { TranslateModule } from '@ngx-translate/core';
 import { QRCodeComponent } from 'angularx-qrcode';
+import { HandleSession } from '../../core/Handle/HandleSession';
 
 @Component({
   selector: 'app-mfa-setup',
@@ -16,10 +16,10 @@ import { QRCodeComponent } from 'angularx-qrcode';
   styleUrl: './mfa-setup.scss'
 })
 export class MfaSetupComp implements OnInit {
-  private SessionService = inject(SessionService);
   private AuthService = inject(AuthService);
   private Router = inject(Router);
   private Location = inject(Location);
+  private HandSession = inject(HandleSession);
 
   // Estados visuales y de datos
   QrImageUrl = signal<string>('');
@@ -34,16 +34,7 @@ export class MfaSetupComp implements OnInit {
 
   // 1. GUARDIÁN DEL COMPONENTE
   ValidateAccess(): void {
-    const sid = this.SessionService.sid;
-    const Step = this.SessionService.Step;
-
-    if (!sid) {
-      this.Router.navigate(['/identificacion']);
-      return;
-    }
-
-    if (Step < AuthStep.MfaSetup) {
-      this.Router.navigate(['/step3']);
+    if(!this.HandSession.CheckStep(AuthStep.MfaSetup)){
       return;
     }
     this.LoadMfaSetupData();
@@ -51,11 +42,7 @@ export class MfaSetupComp implements OnInit {
 
   // 2. CARGA DEL CÓDIGO QR
   LoadMfaSetupData(): void {
-    const sid = this.SessionService.sid;
-    const Step = this.SessionService.Step;
-
-    if (!sid || Step < AuthStep.MfaSetup) return;
-
+    const sid = this.HandSession.GetStep() || '';
     this.IsLoading.set(true);
 
     //TODO: Reemplazar con tu método real del AuthService que trae el QR
@@ -76,20 +63,16 @@ export class MfaSetupComp implements OnInit {
   }
 
   GoBack(): void {
-    this.SessionService.SetStep(AuthStep.Delivery);
+    this.HandSession.SetStep(AuthStep.Delivery);
     this.Location.back();
   }
 
   // 4. EL VALIDADOR DEL CÓDIGO
   VerifySetup(): void {
     const Code = this.VerificationCode().trim();
-    const sid = this.SessionService.sid;
-    const Step = this.SessionService.Step
 
     this.ErrorMessage.set('');
-
-    if (!sid) {
-      this.ErrorMessage.set('Sesión expirada.');
+    if(this.HandSession.CheckStep(AuthStep.MfaSetup)){
       return;
     }
 
@@ -100,12 +83,11 @@ export class MfaSetupComp implements OnInit {
 
     this.IsLoading.set(true);
 
-    // Pasamos el SID y el código generado por la app que acaba de vincular.
-    this.AuthService.VerifyMfaSetup(sid, Code , Step).subscribe({
+    // Pasamos el código generado por la app que acaba de vincular.
+    this.AuthService.VerifyMfaSetup(Code).subscribe({
       next: (Response) => {
         if (Response.success) {
-          this.SessionService.SetStep(AuthStep.Delivery);
-          this.Router.navigate(['/step4']);
+          this.HandSession.MoveStep(AuthStep.Delivery);
         } else {
           this.IsLoading.set(false);
           this.ErrorMessage.set('El código es incorrecto o expiró. Inténtelo de nuevo.');

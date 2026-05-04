@@ -3,10 +3,10 @@ import { Router } from '@angular/router';
 import { Location } from '@angular/common'; 
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../core/services/auth.service';
-import { SessionService } from '../../core/services/session.service';
 import { AuthStep, MfaType } from '../../core/models/Enums';
 import { StepperComp } from '../../shared/components/stepper/stepper';
 import { MaskPipe } from '../../shared/pipes/mask';
+import { HandleSession } from '../../core/Handle/HandleSession';
 
 // Creamos una interfaz temporal para manejar los datos tal como los lee tu HTML
 interface ChannelUI {
@@ -26,9 +26,9 @@ interface ChannelUI {
 
 export class DeliveryMethodComp implements OnInit {
   private authService = inject(AuthService);
-  private sessionService = inject(SessionService);
   private router = inject(Router);
   private location = inject(Location);
+  private HandSession = inject(HandleSession);
 
   AvailableChannels = signal<ChannelUI[]>([]);
   SelectedChannelId = signal<string | null>(null);
@@ -41,16 +41,12 @@ export class DeliveryMethodComp implements OnInit {
   }
 
   LoadChannels(): void {
-    const sid = this.sessionService.sid;
-    const Step = this.sessionService.Step;
-
-    if (!sid) {
-      this.router.navigate(['/identificacion']);
+    if (!this.HandSession.CheckStep(AuthStep.Delivery)) {
       return;
     }
 
     this.IsLoading.set(true);
-    this.authService.GetDeliveryMethods(sid, Step).subscribe({
+    this.authService.GetDeliveryMethods().subscribe({
       next: (response) => {
         if (response.success && response.data) {
           const channels: ChannelUI[] = [];
@@ -93,23 +89,21 @@ export class DeliveryMethodComp implements OnInit {
   }
 
   GoToMfaSetup(): void {
-    this.sessionService.SetStep(AuthStep.MfaSetup);
+    this.HandSession.SetStep(AuthStep.MfaSetup);
     // Redirige a la ruta que definimos en app.routes.ts
     this.router.navigate(['/mfa-setup']); 
   }
 
   GoBack(): void {
-    this.sessionService.SetStep(AuthStep.SecChallenge);
+    this.HandSession.SetStep(AuthStep.SecChallenge);
     this.location.back();
     // Alternativamente: this.router.navigate(['/step2']);
   }
 
   SelectMethod(): void {
-    const sid = this.sessionService.sid;
     const selectedId = this.SelectedChannelId();
-    const Step= this.sessionService.Step;
     
-    if (!sid || !selectedId || Step!==AuthStep.Delivery) return;
+    if (!selectedId || !this.HandSession.CheckStep(AuthStep.Delivery)) return;
 
     // Buscamos cuál canal eligió el usuario para extraer el tipo de MFA exacto
     const channel = this.AvailableChannels().find(c => c.Id === selectedId);
@@ -118,12 +112,11 @@ export class DeliveryMethodComp implements OnInit {
     this.IsLoading.set(true);
 
     // TODO: Si tu authService.sendOtp existe, asegúrate de que reciba (sid, channel.MfaTypeRef)
-    this.authService.SendOtpCode(sid, channel.MfaTypeRef, Step).subscribe({
+    this.authService.SendOtpCode(channel.MfaTypeRef).subscribe({
       next: (response) => {
         if (response.success) {
           // Guardamos en sesión el tipo elegido para el paso 4
-          this.sessionService.SetStep(AuthStep.OtpValidation);
-          this.router.navigate(['/step4']);
+          this.HandSession.MoveStep(AuthStep.OtpValidation);
         } else {
           this.IsLoading.set(false);
           this.ErrorMessage.set('Ocurrió un problema al enviar el código.');
