@@ -1,4 +1,4 @@
-import { Component, signal, inject, OnInit, ViewChildren, QueryList, ElementRef, OnDestroy } from '@angular/core';
+import { Component, signal, inject, OnInit, ViewChildren, QueryList, ElementRef, OnDestroy, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../core/services/auth.service';
@@ -27,6 +27,18 @@ export class TokenValidationComp implements OnInit, OnDestroy {
   // Temporizador
   TimeLeft = signal(300); // 60 segundos
   private TimerInterval: any;
+
+  FormattedTime = computed(() => {
+    const totalSeconds = this.TimeLeft();
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    
+    // padStart asegura que siempre haya dos dígitos (ej: "01:05" en lugar de "1:5")
+    const minsStr = minutes.toString().padStart(2, '0');
+    const secsStr = seconds.toString().padStart(2, '0');
+    
+    return `${minsStr}:${secsStr}`;
+  });
 
   ngOnInit(): void {
     //this.ValidateAccess();
@@ -62,9 +74,7 @@ export class TokenValidationComp implements OnInit, OnDestroy {
 
   ResendCode(): void {
     const mfaType = sessionStorage.getItem('SelectedMfa') as unknown as MfaType;
-    if (this.HandleSession.CheckStep(AuthStep.OtpValidation)) {
-      this.HandleSession.ClearSession();
-      this.HandleSession.MoveStep(AuthStep.Ident);
+    if (!this.HandleSession.CheckStep(AuthStep.OtpValidation)) {
       return;
     }
 
@@ -72,7 +82,7 @@ export class TokenValidationComp implements OnInit, OnDestroy {
     this.AuthService.SendOtpCode(mfaType).subscribe({
       next: (response) => {
         this.IsLoading.set(false);
-        if (response.success) {
+        if (response.code === 200) {
           this.CodeDigits.set(['', '', '', '', '', '']);
           this.StartTimer();
         } else {
@@ -154,7 +164,7 @@ export class TokenValidationComp implements OnInit, OnDestroy {
 
     this.AuthService.ValidateOtp(Request).subscribe({
       next: (Response) => {
-        if (Response.success) {
+        if (Response.code === 200) {
           //TODO: Crear una cookie con el dominio y los datos de accessToken
           this.HandleSession.SetRespItem('AccessToken', Response.data.AccessToken);
           this.HandleSession.SetRespItem('Return', Response.data.UrlReturn);
@@ -170,5 +180,9 @@ export class TokenValidationComp implements OnInit, OnDestroy {
         this.ErrorMessage.set('Error al validar el código.');
       }
     });
+  }
+
+  GoBack(): void {
+    this.HandleSession.MoveStep(AuthStep.Delivery);
   }
 }

@@ -1,24 +1,29 @@
-import { inject } from '@angular/core';
+import { Injectable,inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { SessionService } from '../services/session.service';
 import { AuthStep } from '../models/Enums';
 
+@Injectable({
+  providedIn: 'root' // <-- ESTO ES LO QUE FALTA
+})
+
 export class HandleSession {
 
-  private Router = inject(Router);
-  private SessionService = inject(SessionService);
-  private SId = this.SessionService.sid;
-  private Step = this.SessionService.Step;
+    private Router = inject(Router);
+    private SessionService = inject(SessionService);
+    private SId = this.SessionService.sid;
+    private Step = this.SessionService.Step;
 
     CheckStep(StepAct:AuthStep): boolean {
-        if (!this.SId || this.Step !==StepAct) {
-        console.warn('Acceso denegado. debe continuar el proceso de autenticación');
-        this.SessionService.Clear(); // Limpiamos cualquier estado previo por seguridad
-        this.MoveStep(StepAct);
-        return false;
+        if (!this.SId || this.Step !=StepAct) {
+            console.warn('Acceso denegado. debe continuar el proceso de autenticación');
+            this.SessionService.Clear(); // Limpiamos cualquier estado previo por seguridad
+            this.MoveStep(AuthStep.Ident); // Redirigimos al paso inicial
+            //return false;
         }else{
             return true;
         }
+        return true;
     }
 
     CheckExpireSession(): boolean {
@@ -62,6 +67,11 @@ export class HandleSession {
         document.cookie = `${name}=${value}${expires}; path=/; secure; samesite=lax`;
     }
 
+    RefreshStep(): void {
+        this.SId= this.SessionService.sid;
+        this.Step= this.SessionService.Step;
+    }
+
     MoveStep(StepAct:AuthStep): void {
         let PosStep = 'step1';
         switch (StepAct) {
@@ -75,15 +85,16 @@ export class HandleSession {
                 PosStep= 'step4';
                 break;
             case AuthStep.MfaSetup:
-                PosStep= 'step5';
+                PosStep= 'mfa-setup';
                 break;
             case AuthStep.AccessGranted:
-                PosStep= 'step6';
+                PosStep= 'step5';
                 break;
             default:
                 PosStep= 'step1';
         }
         this.SetStep(StepAct);
+        this.RefreshStep();
         this.Router.navigate([PosStep]);
     }
 }

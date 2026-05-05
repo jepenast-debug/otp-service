@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, from } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { Observable, from,of } from 'rxjs';
+import { switchMap,delay } from 'rxjs/operators';
 import { Environment } from '../../../environments/environment';
 
 // Importamos todas las interfaces
@@ -30,6 +30,7 @@ export class AuthService {
   private SetUrl = `${Environment.ApiUrl}/setup`; 
   private SessionService = inject(SessionService);
 
+  
   // ==========================================
   // --- MÉTODOS DE LA API (Código Limpio) ---
   // ==========================================
@@ -39,7 +40,13 @@ export class AuthService {
       UId: UserId, 
       Step: Step 
     };
-    return this.http.post<ApiResp<IdentResp>>(`${this.apiUrl}/Identify`, data);
+    //return this.http.post<ApiResp<IdentResp>>(`${this.apiUrl}/Identify`, data);
+    //SIMULACION
+    return of({
+      code:200,
+      msg: 'OK',
+      data: { UserId: 'user-demo-123456789', NextStep: AuthStep.SecChallenge, IsMfaEnabled: true, SId: 'sid-demo-123456789' }
+    }).pipe();
   }
 
   GetSecQuestions(): Observable<ApiResp<SecChallengeResp>> {
@@ -47,8 +54,21 @@ export class AuthService {
       UId: this.GetSessionData('sid'), 
       Step: this.GetSessionData('step') 
     };
-    return this.http.post<ApiResp<SecChallengeResp>>(`${this.apiUrl}/SecQuest`, data);
+    ///return this.http.post<ApiResp<SecChallengeResp>>(`${this.apiUrl}/SecQuest`, data);
+    //SIMULACION
+    return of({
+      code:200,
+      msg: 'OK',
+      data: { 
+        UserId: 'user-demo-123456789',
+        Questions: [
+          { Id: 1, Key: '¿Cuál es el nombre de tu primera mascota?' },
+          { Id: 2, Key: '¿En qué ciudad naciste?' }
+        ] 
+      }
+    }).pipe();
   }
+
 
   ValidateSecAnswers(Quest: ChallengeValidationReq): Observable<ApiResp<boolean>> {
     const data = { 
@@ -56,7 +76,13 @@ export class AuthService {
       Type: Quest, 
       Step: this.GetSessionData('step') 
     };
-    return this.http.post<ApiResp<boolean>>(`${this.apiUrl}/ValAnswers`, data);
+    //return this.http.post<ApiResp<boolean>>(`${this.apiUrl}/ValAnswers`, data);
+    //SIMULACION
+    return of({
+      code:200,
+      msg: 'OK',
+      data: true
+    }).pipe();
   }
 
   GetDeliveryMethods(): Observable<ApiResp<DeliveryResp>> {
@@ -64,7 +90,17 @@ export class AuthService {
       UId: this.GetSessionData('sid'), 
       Step: this.GetSessionData('step') 
     };
-    return this.http.post<ApiResp<DeliveryResp>>(`${this.apiUrl}/Methods`, data);
+    //return this.http.post<ApiResp<DeliveryResp>>(`${this.apiUrl}/Methods`, data);
+    //SIMULACION
+    return of({
+      code:200,
+      msg: 'OK',
+      data: {
+        Email: 'u****@teleperformance.com',
+        Phone: '*******1234',
+        HasApp: false // Cambia a true si quieres probar que el banner de MFA desaparezca
+      }
+    }).pipe(delay(800));
   }
 
   SendOtpCode(Type: MfaType): Observable<ApiResp<boolean>> {
@@ -73,11 +109,23 @@ export class AuthService {
       Type: Type, 
       Step: this.GetSessionData('step') 
     };
-    return this.http.post<ApiResp<boolean>>(`${this.apiUrl}/SendCode`, data);
+    //return this.http.post<ApiResp<boolean>>(`${this.apiUrl}/SendCode`, data);
+    //SIMULACION
+    return of({
+      code:200,
+      msg: 'OK',
+      data: true
+    }).pipe();
   }
 
   SetupMfa(UserId: string): Observable<ApiResp<MfaSetupResp>> {
-    return this.http.post<ApiResp<MfaSetupResp>>(`${this.SetUrl}/SetupMfa`, { UserId });
+    //return this.http.post<ApiResp<MfaSetupResp>>(`${this.SetUrl}/SetupMfa`, { UserId });
+    //SIMULACION
+    return of({
+      code:200,
+      msg: 'OK',
+      data: { QRUri: 'mfa-demo-123456789', ManualSecret: 'manual-secret-123456789', BackupCodes: ['backup1']  }
+    }).pipe();
   }
 
   VerifyMfaSetup(Code: string): Observable<ApiResp<boolean>> {

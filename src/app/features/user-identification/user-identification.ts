@@ -48,7 +48,7 @@ export class UserIdentificationComp {
     // Llamada al backend usando AuthService
     this.AuthService.IdentifyUser(request,AuthStep.Ident).subscribe({
       next: (Response) => {
-        if (Response.success && Response.data.SId) {
+        if (Response.code === 200 && Response.data.SId) {
           this.HandSession.SetSId(Response.data.SId);
           this.HandSession.MoveStep(AuthStep.SecChallenge);
         } else {

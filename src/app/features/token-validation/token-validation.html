@@ -25,18 +25,6 @@
         }
       </div>
 
-      <div class="TimerSection">
-        @if (IsExpired()) {
-          <span class="ExpiredText">El tiempo ha expirado.</span>
-        } @else {
-          <span class="TimerText">Tiempo restante: 00:{{ TimeLeft() < 10 ? '0' + TimeLeft() : TimeLeft() }}</span>
-        }
-        
-        <button class="LinkButton" (click)="ResendCode()" [disabled]="IsLoading()">
-          Reenviar Código
-        </button>
-      </div>
-
       @if (ErrorMessage()) {
         <div class="ErrorAlert">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -44,14 +32,26 @@
             <line x1="12" y1="9" x2="12" y2="13"></line>
             <line x1="12" y1="17" x2="12.01" y2="17"></line>
           </svg>
-          {{ ErrorMessage() }}
+          <span>{{ ErrorMessage() }}</span>
         </div>
       }
+
+      <div class="TimerSection">
+        @if (IsExpired()) {
+          <span class="ExpiredText">El tiempo ha expirado.</span>
+        } @else {
+          <span class="TimerText">Tiempo restante: {{ FormattedTime() }}</span>
+        }
+        
+        <button class="LinkButton" (click)="ResendCode()" [disabled]="IsLoading()">
+          Reenviar Código
+        </button>
+      </div>
     </div>
 
     <div class="CardFooter">
       <button 
-        class="PrimaryButton FullWidth" 
+        class="PrimaryButton" 
         (click)="ValidateToken()" 
         [disabled]="!IsFormValid() || IsLoading() || IsExpired()">
         
@@ -60,6 +60,13 @@
         } @else {
           Autenticar
         }
+      </button>
+      
+      <button 
+        class="SecondaryButton" 
+        (click)="GoBack()" 
+        [disabled]="IsLoading()">
+        Volver
       </button>
     </div>
   </main>

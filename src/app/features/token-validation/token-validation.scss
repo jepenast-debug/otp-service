@@ -100,3 +100,181 @@
   padding-top: 0;
   border-top: none;
 }
+
+.ViewContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 90vh;
+  background-color: #f8fafc;
+}
+
+.AuthCard {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem 2.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 500px; /* Tamaño ideal para un formulario de 1 columna */
+  margin: 1rem auto;
+}
+
+.CardHeader {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  
+  h2 {
+    color: #1e293b;
+    font-size: 1.5rem;
+    margin-bottom: 0.2rem;
+  }
+  
+  p {
+    color: #64748b;
+    font-size: 0.95rem;
+    margin: 0;
+  }
+}
+
+/* --- Cajas de Validación (OTP) --- */
+.ValidationBoxes {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 2rem 0 1.5rem 0;
+
+  @media (max-width: 480px) {
+    gap: 8px; 
+  }
+}
+
+.DigitBox {
+  width: 50px;
+  height: 60px;
+  font-size: 1.8rem;
+  font-weight: bold;
+  text-align: center;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background-color: transparent;
+  color: #1e293b;
+  outline: none;
+  transition: all 0.2s ease;
+
+  &:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  }
+
+  &:disabled {
+    background-color: #f1f5f9;
+    cursor: not-allowed;
+  }
+
+  &.Error {
+    border-color: #f87171;
+    background-color: #fef2f2; 
+  }
+
+  @media (max-width: 480px) {
+    width: 40px;
+    height: 50px;
+    font-size: 1.5rem;
+  }
+}
+
+/* --- Alertas y Temporizador --- */
+.ErrorAlert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #fef2f2;
+  color: #ef4444;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #fecaca;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.TimerSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+
+  .ExpiredText { color: #ef4444; }
+  .TimerText { color: #64748b; }
+
+  .LinkButton {
+    background: none;
+    border: none;
+    color: #2563eb;
+    text-decoration: underline;
+    cursor: pointer;
+    font-weight: 600;
+    padding: 0;
+
+    &:hover { color: #1d4ed8; }
+    &:disabled {
+      color: #94a3b8;
+      cursor: not-allowed;
+      text-decoration: none;
+    }
+  }
+}
+
+/* --- Botones y Footer --- */
+.CardFooter {
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* Espacio uniforme entre botones */
+  margin-top: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.PrimaryButton {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  font-size: 1rem;
+  background-color: #2563eb;
+  color: white;
+
+  &:hover:not(:disabled) { background-color: #1d4ed8; }
+  &:disabled {
+    background-color: #94a3b8;
+    cursor: not-allowed;
+  }
+}
+
+.SecondaryButton {
+  width: 100%;
+  background-color: transparent;
+  color: #64748b;
+  padding: 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
+
+  &:hover:not(:disabled) {
+    background-color: #f1f5f9;
+    border-color: #94a3b8;
+    color: #1e293b;
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}

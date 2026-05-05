@@ -1,6 +1,4 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { Location } from '@angular/common'; 
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../core/services/auth.service';
 import { AuthStep, MfaType } from '../../core/models/Enums';
@@ -26,8 +24,6 @@ interface ChannelUI {
 
 export class DeliveryMethodComp implements OnInit {
   private authService = inject(AuthService);
-  private router = inject(Router);
-  private location = inject(Location);
   private HandSession = inject(HandleSession);
 
   AvailableChannels = signal<ChannelUI[]>([]);
@@ -48,7 +44,7 @@ export class DeliveryMethodComp implements OnInit {
     this.IsLoading.set(true);
     this.authService.GetDeliveryMethods().subscribe({
       next: (response) => {
-        if (response.success && response.data) {
+        if (response.code === 200 && response.data) {
           const channels: ChannelUI[] = [];
           
           // Mapeamos las respuestas a la estructura ChannelUI que usa el HTML
@@ -89,14 +85,11 @@ export class DeliveryMethodComp implements OnInit {
   }
 
   GoToMfaSetup(): void {
-    this.HandSession.SetStep(AuthStep.MfaSetup);
-    // Redirige a la ruta que definimos en app.routes.ts
-    this.router.navigate(['/mfa-setup']); 
+    this.HandSession.MoveStep(AuthStep.MfaSetup);
   }
 
   GoBack(): void {
-    this.HandSession.SetStep(AuthStep.SecChallenge);
-    this.location.back();
+    this.HandSession.MoveStep(AuthStep.SecChallenge);
     // Alternativamente: this.router.navigate(['/step2']);
   }
 
@@ -114,7 +107,7 @@ export class DeliveryMethodComp implements OnInit {
     // TODO: Si tu authService.sendOtp existe, asegúrate de que reciba (sid, channel.MfaTypeRef)
     this.authService.SendOtpCode(channel.MfaTypeRef).subscribe({
       next: (response) => {
-        if (response.success) {
+        if (response.code === 200) {
           // Guardamos en sesión el tipo elegido para el paso 4
           this.HandSession.MoveStep(AuthStep.OtpValidation);
         } else {

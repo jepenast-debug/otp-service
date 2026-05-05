@@ -48,7 +48,7 @@ export class MfaSetupComp implements OnInit {
     //TODO: Reemplazar con tu método real del AuthService que trae el QR
     this.AuthService.SetupMfa(sid).subscribe({
       next: (Response) => {
-        if (Response.success && Response.data) {
+        if (Response.code === 200 && Response.data) {
           this.QrImageUrl.set(Response.data.QRUri);
           this.SecretKey.set(Response.data.ManualSecret);
         }
@@ -86,7 +86,7 @@ export class MfaSetupComp implements OnInit {
     // Pasamos el código generado por la app que acaba de vincular.
     this.AuthService.VerifyMfaSetup(Code).subscribe({
       next: (Response) => {
-        if (Response.success) {
+        if (Response.code === 200) {
           this.HandSession.MoveStep(AuthStep.Delivery);
         } else {
           this.IsLoading.set(false);

@@ -33,12 +33,6 @@ export interface AuthSuccessResp {
   AccessToken: string;
   RefreshToken: string;
   expiresIn: number;
-  user: {
-    Id: string;
-    FullName: string;
-    Email: string;
-    Roles: string[];
-  };
   Cookies: string[]; // Para almacenar en el navegador
   UrlReturn: string;
 }

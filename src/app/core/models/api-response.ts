@@ -1,7 +1,6 @@
 export interface ApiResp<T> {
-  success: boolean;
-  message: string;
+  msg: string;
   data: T;
-  errors?: string[];
+  err?: string[];
   code: number;
 }

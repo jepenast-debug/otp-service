@@ -1,5 +1,4 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -23,7 +22,6 @@ interface SecQuestUI extends SecQuest {
 })
 export class SecurityChallengeComp implements OnInit {
   private AuthService = inject(AuthService);
-  private Router = inject(Router);
   private HandSession = inject(HandleSession);
 
   // Signals para el estado de la vista
@@ -43,7 +41,7 @@ export class SecurityChallengeComp implements OnInit {
     this.IsLoading.set(true);
     this.AuthService.GetSecQuestions().subscribe({
       next: (Response) => {
-        if (Response.success && Response.data.Questions) {
+        if (Response.code === 200 && Response.data.Questions) {
           this.Questions.set(Response.data.Questions);
         }
         this.IsLoading.set(false);
@@ -56,7 +54,7 @@ export class SecurityChallengeComp implements OnInit {
   }
 
   ValidateAnswers(): void {
-    if (this.HandSession.CheckStep(AuthStep.SecChallenge)) {
+    if (!this.HandSession.CheckStep(AuthStep.SecChallenge)) {
       return;
     }
 
@@ -80,8 +78,8 @@ export class SecurityChallengeComp implements OnInit {
 
     this.AuthService.ValidateSecAnswers(request).subscribe({
       next: (response) => {
-        if (response.success) {
-          this.Router.navigate(['/step3']);
+        if (response.code === 200) {
+          this.HandSession.MoveStep(AuthStep.Delivery);
         } else {
           this.IsLoading.set(false);
           this.ErrorMessage.set('Respuestas incorrectas. Inténtelo de nuevo.');
@@ -91,6 +89,7 @@ export class SecurityChallengeComp implements OnInit {
         this.IsLoading.set(false);
         this.ErrorMessage.set('Error de validación. Verifique sus respuestas.');
       }
+      
     });
   }
 
