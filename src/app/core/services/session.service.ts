@@ -2,17 +2,30 @@ import { Injectable, signal } from '@angular/core';
 import { AuthStep } from '../models/Enums';
 
 @Injectable({ providedIn: 'root' })
-export class SessionService {
-  // Inicializamos con lo que haya en el storage por si el usuario refresca la página
-  private _sid = signal<string | null>(sessionStorage.getItem('sid'));
-  
-  //función privada para manejar toda la decodificación al inicio
-  private _step = signal<AuthStep>(this.GetInitialStep());
 
-  get sid() { return this._sid(); }
-  
+export class SessionService {
+  private _sid = signal<string | null>(sessionStorage.getItem('sid'));
+  private _step = signal<AuthStep>(this.GetInitialStep());
+  private _Url = signal<string>(this.GetUrlEnc());
+
+  get sid() { 
+    return this._sid(); 
+  }
+ 
   get Step(): AuthStep {
     return this._step();
+  }
+
+  get Url(): string {
+    return this._Url();
+  }
+
+  GetItem(Key:string): string {
+    return sessionStorage.getItem(Key)?.toString() || '';
+  }
+
+  SetItem(Key:string,Value:string){
+    sessionStorage.setItem(Key,Value);
   }
 
   SetSid(value: string): void {
@@ -21,22 +34,42 @@ export class SessionService {
   }
 
   SetStep(value: AuthStep): void {
-    // Codificamos antes de guardar en 'Record'
     const Enc = this.EncodeStep(value.toString());
     sessionStorage.setItem('Record', Enc);
     this._step.set(value);
   }
 
+  SetUrl(value: string): void {
+    const Enc = this.EncodeStep(value.toString());
+    sessionStorage.setItem('Url', Enc);
+    this._Url.set(value);
+
+  }
+
   Clear(): void {
     sessionStorage.removeItem('sid');
     sessionStorage.removeItem('Record');
+    sessionStorage.removeItem('url');
     this._sid.set(null);
     this._step.set(AuthStep.Ident);
+  }
+
+  ClearAll():void{
+    sessionStorage.clear();
+    localStorage.clear();
   }
 
   // ==========================================
   // --- MÉTODOS PRIVADOS DE OFUSCACIÓN ---
   // ==========================================
+
+  private GetUrlEnc(): string {
+    const durl = sessionStorage.getItem('Url');
+    if (!durl || durl.length <= 16) {
+      return '';
+    }
+    return durl;
+  }
 
   private GetInitialStep(): AuthStep {
     const Record = sessionStorage.getItem('Record');

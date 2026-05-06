@@ -1,6 +1,8 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { StepperComp } from '../../shared/components/stepper/stepper';
+import { HandleSession } from '../../core/Handle/HandleSession';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-authentication-success',
@@ -11,18 +13,15 @@ import { StepperComp } from '../../shared/components/stepper/stepper';
 })
 export class AutheSuccessComp implements OnInit {
   private Router = inject(Router);
+  private HandSession = inject(HandleSession);
+  private Location = inject(Location);
 
   ngOnInit(): void {
     // Limpiamos la basura transaccional del flujo OTP
-    sessionStorage.removeItem('SelectedChannel');
-    
-    // Opcional: Si el backend envía un Token final, asegúrate de guardarlo 
-    // y borrar el SessionId temporal aquí.
+    this.HandSession.ClearSession();
   }
 
-  GoToDashboard(): void {
-    // Aquí defines la ruta hacia el dashboard principal de tu aplicación
-    // this.Router.navigate(['/dashboard']);
-    alert('¡Bienvenido al sistema corporativo!');
+  GoToPage(): void {
+    this.Location.go(this.HandSession.GetUrl()+"/otplogin");
   }
 }

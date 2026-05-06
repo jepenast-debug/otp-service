@@ -29,7 +29,7 @@ export class AuthService {
   private apiUrl = `${Environment.ApiUrl}/auth`; 
   private SetUrl = `${Environment.ApiUrl}/setup`; 
   private SessionService = inject(SessionService);
-
+  
   
   // ==========================================
   // --- MÉTODOS DE LA API (Código Limpio) ---

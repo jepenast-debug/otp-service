@@ -41,6 +41,10 @@ export class HandleSession {
         this.SessionService.SetSid(value);
     }
 
+    SetUrl(value:string): void{
+        this.SessionService.SetUrl(value);
+    }
+
     GetStep(): string {
         return this.SessionService.Step.toString() || ''  ;
     }
@@ -49,17 +53,24 @@ export class HandleSession {
         return this.SessionService.sid?.toString() || '';
     }
 
+    GetUrl():string {
+        return this.SessionService.Url?.toString() || '';
+    }
+
+    GetItem(key: string): string {
+        return this.SessionService.GetItem(key) || '';
+    }
+
     ClearSession(): void {
         this.SessionService.Clear();
     }
 
     ClearAllStorage(): void {
-        localStorage.clear();
-        sessionStorage.clear();
+        this.SessionService.ClearAll();
     }
 
     SetRespItem(key: string, value: string): void {
-        sessionStorage.setItem(key, value);
+        this.SessionService.SetItem(key, value);
     }
 
     CreateCookie(name: string, value: string, Hours?: number): void {

@@ -1,18 +1,27 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { SessionService } from '../services/session.service';
+import { HandleSession } from '../Handle/HandleSession';
+import { AuthStep } from '../models/Enums';
 
 export const AuthGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
-  const sessionService = inject(SessionService);
-  const userId = sessionService.sid;
+  const handSession = inject(HandleSession);
+  const userId = handSession.GetSid;
+  const CurrentStep = handSession.GetStep;
+  const ExpectStep = route.data['Step'] as AuthStep;
 
-  if (userId) {
-    return true;
-  } else {
+  if (!userId) {
     console.warn('Acceso denegado. Se requiere identificación previa.');
-    sessionService.Clear(); // Limpiamos cualquier estado previo por seguridad
-    router.navigate(['/step1']);
+    handSession.ClearAllStorage(); 
+    handSession.MoveStep(AuthStep.Ident);
     return false;
   }
+  
+  if (ExpectStep !== undefined && CurrentStep.toString() !== ExpectStep.toString()) {
+    console.warn(`Acceso denegado. Salto de ruta detectado.`);
+    handSession.ClearAllStorage(); 
+    handSession.MoveStep(AuthStep.Ident);
+    return false;
+  }
+  return true;
 };

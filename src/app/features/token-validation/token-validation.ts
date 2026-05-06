@@ -166,9 +166,9 @@ export class TokenValidationComp implements OnInit, OnDestroy {
       next: (Response) => {
         if (Response.code === 200) {
           //TODO: Crear una cookie con el dominio y los datos de accessToken
-          this.HandleSession.SetRespItem('AccessToken', Response.data.AccessToken);
-          this.HandleSession.SetRespItem('Return', Response.data.UrlReturn);
-          this.HandleSession.CreateCookie('AToken', Response.data.AccessToken); // Cookie válida por 1 día
+          this.HandleSession.SetRespItem('auth', Response.data.AccessToken);
+          this.HandleSession.SetUrl(Response.data.UrlReturn);
+          this.HandleSession.CreateCookie('AToken', Response.data.AccessToken);
           this.HandleSession.MoveStep(AuthStep.AccessGranted);
         } else {
           this.IsLoading.set(false);
