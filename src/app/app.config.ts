@@ -6,13 +6,13 @@ import { routes } from './app.routes';
 //Traductores
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader, TranslateHttpLoader } from '@ngx-translate/http-loader';
-
+import { ErrorInterceptor } from './core/interceptors/error.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
     provideHttpClient(
-      withInterceptors([SecurityInterceptor]) //Se interceptan las respuestas para desencriptarlas antes de que lleguen a los servicios.
+      withInterceptors([SecurityInterceptor,ErrorInterceptor]) //Se interceptan las respuestas para desencriptarlas antes de que lleguen a los servicios.
     ),
     provideTranslateService({
       defaultLanguage: 'es'

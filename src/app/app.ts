@@ -3,6 +3,8 @@ import { RouterOutlet } from '@angular/router';
 
 import { HeaderComp } from './layout/header/header';
 import { FooterComp } from './layout/footer/footer';
+import { LoadingComp } from './shared/components/loading/loading';
+import { ToastComp } from './shared/components/toast/toast';
 
 @Component({
   selector: 'app-root',
@@ -10,7 +12,9 @@ import { FooterComp } from './layout/footer/footer';
   imports: [
     RouterOutlet, 
     HeaderComp, 
-    FooterComp
+    FooterComp,
+    LoadingComp, 
+    ToastComp
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss'

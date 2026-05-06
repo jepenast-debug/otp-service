@@ -1,0 +1,6 @@
+@if (ToastServ.CurrentToast(); as toast) {
+    <div class="ToastContainer" [ngClass]="toast.type">
+        <span>{{ toast.text }}</span>
+        <button class="CloseBtn" (click)="ToastServ.Hide()">✕</button>
+    </div>
+}

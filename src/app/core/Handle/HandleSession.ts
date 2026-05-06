@@ -19,9 +19,7 @@ export class HandleSession {
             console.warn('Acceso denegado. debe continuar el proceso de autenticación');
             this.SessionService.Clear(); // Limpiamos cualquier estado previo por seguridad
             this.MoveStep(AuthStep.Ident); // Redirigimos al paso inicial
-            //return false;
-        }else{
-            return true;
+            return false;
         }
         return true;
     }
