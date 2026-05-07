@@ -27,6 +27,75 @@ graph TD
     F --> A
 ```
 
+## 📦 Modelo de Datos y Contratos de API
+
+Para garantizar una comunicación segura y predecible, el frontend espera que el backend responda siempre utilizando un envoltorio (wrapper) estándar para todas las peticiones HTTP. Todas las cargas útiles (payloads) viajan encriptadas mediante AES-GCM.
+
+### Formato Base de Respuesta (Wrapper Estándar)
+Todas las respuestas exitosas deben tener esta estructura principal:
+
+```json
+{
+  "code": 200,
+  "message": "Operación exitosa",
+  "data": { } 
+}
+```
+*(Nota: El contenido dinámico se envía dentro del objeto "data")*
+
+### Contratos por Flujo (Ejemplos de `data`)
+
+A continuación se detallan los objetos esperados dentro de la propiedad `data` dependiendo del paso en el que se encuentre el usuario:
+
+**1. Identificación de Usuario (`/api/auth/identify`)**
+Al enviar el correo o ID del usuario, el backend debe retornar el Identificador de Sesión (`SId`) temporal que acompañará el resto del flujo.
+
+* **Request:** `{ "userId": "usuario@empresa.com" }`
+* **Response `data`:**
+ ```json
+  {
+    "SId": "eyJhbGciOiJIUzI1NiIsInR5...", 
+    "requiredStep": 2, 
+    "maskedEmail": "u******@empresa.com"
+  }
+```
+
+**2. Solicitud de Código OTP (`/api/auth/send-otp`)**
+Al seleccionar un método de entrega (SMS, Email, Llamada), el backend confirma el envío.
+* **Request:** `{ "SId": "...", "channel": "SMS" }`
+* **Response `data`:**
+```json
+  {
+    "status": "sent",
+    "expiresIn": 300, 
+    "deliveryTarget": "********4567" 
+  }
+```
+
+**3. Validación Final del Token (`/api/auth/validate`)**
+El envío del código de 6 dígitos introducido por el usuario.
+* **Request:** `{ "SId": "...", "otpCode": "123456" }`
+* **Response `data`:**
+```json
+  {
+    "status": "success",
+    "accessToken": "jwt-final-de-acceso-al-sistema",
+    "refreshToken": "jwt-de-refresco"
+  }
+```
+
+### Manejo de Errores Esperado
+En caso de validaciones de negocio (ej. código incorrecto) o fallos (HTTP 400, 401, 500), el frontend espera que el backend responda con el mismo formato, utilizando el campo `message` para mostrar la alerta al usuario a través del `ToastService`:
+
+```json
+{
+  "code": 401,
+  "message": "El código ingresado es incorrecto o ha expirado.",
+  "data": null
+}
+```
+*(Nota: El `ErrorInterceptor` del frontend destruirá automáticamente cualquier traza de error de servidor, asegurando que no se exponga información sensible de la infraestructura).*
+
 ## 🚀 Ejecución y Configuración
 
 ### Requisitos Previos
@@ -54,7 +123,7 @@ La aplicación estará disponible en `http://localhost:4200`.
 Hemos configurado reemplazos de archivos para entornos específicos en `angular.json`:
 ```bash
 # Compilar para entorno de QA
-ng build --configuration=qa
+ng build --configuration=test
 
 # Compilar para Producción
 ng build --configuration=production
