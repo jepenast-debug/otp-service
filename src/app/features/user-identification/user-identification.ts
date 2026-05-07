@@ -1,4 +1,4 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { HandleSession } from '../../core/Handle/HandleSession';
@@ -13,7 +13,7 @@ import { AuthStep } from '../../core/models/Enums';
   templateUrl: './user-identification.html',
   styleUrl: './user-identification.scss'
 })
-export class UserIdentificationComp {
+export class UserIdentificationComp implements OnInit {
   // 1. Inyección de dependencias estandarizada (camelCase)
   private AuthService = inject(AuthService);
   private HandSession = inject(HandleSession);

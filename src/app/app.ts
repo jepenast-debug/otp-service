@@ -20,7 +20,7 @@ import { LanguageService } from './core/services/language.service';
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
-export class App {
+export class App implements OnInit{
   protected readonly Title = signal('OTPService');
   private LangService = inject(LanguageService);
 
