@@ -4,7 +4,7 @@ import { AuthStep } from '../models/Enums';
 @Injectable({ providedIn: 'root' })
 
 export class SessionService {
-  private _sid = signal<string | null>(sessionStorage.getItem('sid'));
+  private _sid = signal<string | null>(this.GetInitialSid());
   private _step = signal<AuthStep>(this.GetInitialStep());
   private _Url = signal<string>(this.GetUrlEnc());
 
@@ -29,18 +29,19 @@ export class SessionService {
   }
 
   SetSid(value: string): void {
-    sessionStorage.setItem('sid', value);
+    let Enc=this.Encode(value.toString());
+    sessionStorage.setItem('sid', Enc);
     this._sid.set(value);
   }
 
   SetStep(value: AuthStep): void {
-    const Enc = this.EncodeStep(value.toString());
+    const Enc = this.Encode(value.toString());
     sessionStorage.setItem('Record', Enc);
     this._step.set(value);
   }
 
   SetUrl(value: string): void {
-    const Enc = this.EncodeStep(value.toString());
+    const Enc = this.Encode(value.toString());
     sessionStorage.setItem('Url', Enc);
     this._Url.set(value);
 
@@ -76,25 +77,36 @@ export class SessionService {
     if (!Record || Record.length <= 16) {
       return AuthStep.Ident;
     }
-    
+    let Result=this.Decode(Record);
+    const StepValue = Number(Result);
+    return isNaN(StepValue) ? AuthStep.Ident : StepValue as AuthStep;
+  }
+
+  private GetInitialSid(): string{
+    const Sid = sessionStorage.getItem('sid');
+    if (!Sid || Sid.length<=16){
+      return '';
+    }
+    let Result=this.Decode(Sid) || '';
+    return Result;
+  }
+
+  private Decode(EncStr:string):string{
+    let str = '';
     try {
-      let str = '';
-      const B64 = Record.substring(16);      // 1. Quitar el salt de 16 caracteres
-      const Hex = atob(B64);                //  2. Base64 a Hex
+      const B64 = EncStr.substring(16);
+      const Hex = atob(B64);
       // 3. Pasar de hex a string
       for (let i = 0; i < Hex.length; i += 2) {
         str += String.fromCharCode(parseInt(Hex.substring(i, i + 2), 16));
       }
-      const StepValue = Number(str);
-      // Si el resultado no es un número válido, alguien manipuló la cadena
-      return isNaN(StepValue) ? AuthStep.Ident : StepValue as AuthStep;
+      return str
     } catch (error) {
-      // Si falla atob() o el parseo por manipulación en consola, reiniciamos la sesión
-      return AuthStep.Ident;
+      return str;
     }
   }
 
-  private EncodeStep(str: string): string {
+  private Encode(str:string):string{
     // 1. String a Hex
     let Hex = '';
     for (let i = 0; i < str.length; i++) {
@@ -110,10 +122,8 @@ export class SessionService {
   private GenerateSalt(length: number): string {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let Result = '';
-    
     const randomValues = new Uint32Array(length);
     window.crypto.getRandomValues(randomValues); 
-    
     for (let i = 0; i < length; i++) {
       Result += chars[randomValues[i] % chars.length];
     }

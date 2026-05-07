@@ -1,22 +1,26 @@
 import { Environment } from '../../../environments/environment';
+import DOMPurify from 'dompurify';
 
 export class CryptoUtils {
-  // --- SANITIZACIÓN ---
-  static Sanitize(payload: any): any {
-    if (typeof payload === 'string') {
-      return payload.replace(/<[^>]*>?/gm, '').replace(/[<>;"\(\)]/g, '').trim();
+
+  static Sanitize(data: any): any {
+    if (data === null || data === undefined) {
+      return data;
     }
-    if (Array.isArray(payload)) return payload.map(item => this.Sanitize(item));
-    if (payload !== null && typeof payload === 'object') {
-      const Sanitized: any = {};
-      for (const key in payload) {
-        if (Object.prototype.hasOwnProperty.call(payload, key)) {
-          Sanitized[key] = this.Sanitize(payload[key]);
-        }
+    if (typeof data === 'string') {
+      return DOMPurify.sanitize(data, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
+    }
+    if (Array.isArray(data)) {
+      return data.map(item => this.Sanitize(item));
+    }
+    if (typeof data === 'object') {
+      const sanitizedObj: any = {};
+      for (const [key, value] of Object.entries(data)) {
+        sanitizedObj[key] = this.Sanitize(value);
       }
-      return Sanitized;
+      return sanitizedObj;
     }
-    return payload;
+    return data;
   }
 
   // --- CIFRADO HÍBRIDO (CLIENTE -> SERVER) ---
