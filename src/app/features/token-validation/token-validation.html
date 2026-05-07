@@ -38,13 +38,13 @@
 
       <div class="TimerSection">
         @if (IsExpired()) {
-          <span class="ExpiredText">{{ 'Token.ExpireText' | Translate}}</span>
+          <span class="ExpiredText">{{ 'Token.ExpireText' | translate}}</span>
         } @else {
-          <span class="TimerText">{{'Token.CodeExpire' | Translate}}: {{ FormattedTime() }}</span>
+          <span class="TimerText">{{'Token.CodeExpire' | translate}}: {{ FormattedTime() }}</span>
         }
         
         <button class="LinkButton" (click)="ResendCode()" [disabled]="IsLoading()">
-          {{ 'Token.Resend' | Translate }}
+          {{ 'Token.Resend' | translate }}
         </button>
       </div>
     </div>
@@ -58,7 +58,7 @@
         @if (IsLoading()) {
           <span class="Spinner"></span>
         } @else {
-          {{ 'Token.Validate' | Translate }}
+          {{ 'Token.Validate' | translate }}
         }
       </button>
       
@@ -66,7 +66,7 @@
         class="SecondaryButton" 
         (click)="GoBack()" 
         [disabled]="IsLoading()">
-        {{ 'GENERAL.Back' | Translate }}
+        {{ 'GENERAL.Back' | translate }}
       </button>
     </div>
   </main>
