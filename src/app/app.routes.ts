@@ -45,7 +45,7 @@ export const routes: Routes = [
     path: 'step5', 
     canActivate: [AuthGuard],
     loadComponent: () => import('./features/auth-success/auth-success')
-      .then(m => m.AutheSuccessComp),
+      .then(m => m.AuthSuccessComp),
     data: { Step: AuthStep.AccessGranted } 
   },
   {

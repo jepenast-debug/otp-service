@@ -12,7 +12,7 @@ import { TranslateModule } from '@ngx-translate/core';
   templateUrl: './auth-success.html',
   styleUrl: './auth-success.scss'
 })
-export class AutheSuccessComp implements OnInit {
+export class AuthSuccessComp implements OnInit {
   private Router = inject(Router);
   private HandSession = inject(HandleSession);
   private Location = inject(Location);
