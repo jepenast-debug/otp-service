@@ -1,28 +1,24 @@
-import { Injectable, signal, inject } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LanguageService {
-  private Translate = inject(TranslateService);
-  
-  CurrentLang = signal<string>('es');
+  private translate = inject(TranslateService);
 
-  constructor() {
-    // Intentar recuperar el idioma guardado previamente por el usuario
-    const SavedLang = localStorage.getItem('AppLang') || 'es';
-    this.SetLanguage(SavedLang);
+  InitLanguage(): void {
+    const savedLang = localStorage.getItem('AppLang') || 'es';
+    this.translate.setDefaultLang('es');
+    this.translate.use(savedLang);
   }
 
-  SetLanguage(LangCode: string): void {
-    this.Translate.use(LangCode);
-    this.CurrentLang.set(LangCode);
-    localStorage.setItem('AppLang', LangCode); // Persistencia entre recargas
+  SetLanguage(lang: string): void {
+    this.translate.use(lang);
+    localStorage.setItem('AppLang', lang);
   }
 
-  ToggleLanguage(): void {
-    const NewLang = this.CurrentLang() === 'es' ? 'en' : 'es';
-    this.SetLanguage(NewLang);
+  GetCurrentLanguage(): string {
+    return this.translate.currentLang || this.translate.defaultLang || 'es';
   }
 }

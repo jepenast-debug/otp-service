@@ -3,8 +3,8 @@
 
   <main class="AuthCard">
     <div class="CardHeader">
-      <h2>Método de Envío</h2>
-      <p>Seleccione dónde desea recibir su código de seguridad de un solo uso (OTP).</p>
+      <h2>{{'Delivery.Title' | translate }}</h2>
+      <p>{{'Delivery.Subtitle' | translate }}<</p>
     </div>
 
     <div class="CardBody">
@@ -61,12 +61,12 @@
           </div>
           
           <div class="PromoText">
-            <strong>App de Autenticación no configurada</strong>
-            <span>Active su MFA para un acceso más rápido y seguro la próxima vez.</span>
+            <strong>{{ 'Delivery.AppConfig' | translate }}</strong>
+            <span>{{ 'Delivery.MsgCfg' | translate }}</span>
           </div>
 
           <button class="PromoAction" (click)="GoToMfaSetup()">
-            Configurar
+            {{ 'Delivery.BtnCfg' | translate }}
           </button>
         </div>
       }
@@ -88,7 +88,7 @@
         class="SecondaryButton" 
         (click)="GoBack()" 
         [disabled]="IsLoading()">
-        Volver
+        {{ 'GENERAL.Back' |translate}}
       </button>
 
       <button 
@@ -99,7 +99,7 @@
         @if (IsLoading()) {
           <span class="Spinner"></span>
         } @else {
-          Enviar Código
+          {{ 'Delivery.SendCode' |translate}}
         }
       </button>
     </div>

@@ -1,14 +1,14 @@
 {
   "GENERAL": {
     "Continue": "Continue",
-    "Back": "Go Back"
+    "Back": "Back"
   },
   "STEPPER": {
-    "STEP_1": "Identification",
-    "STEP_2": "Security Challenge",
-    "STEP_3": "Delivery Method",
-    "STEP_4": "Token Validation",
-    "STEP_5": "Access Granted"
+    "Step_1": "Identification",
+    "Step_2": "Security Challenge",
+    "Step_3": "Delivery Method",
+    "Step_4": "Token Validation",
+    "Step_5": "Access Granted"
   },
   "ID": {
     "Title": "Identity Validation",
@@ -16,5 +16,43 @@
     "Label": "Access Credential",
     "Placeholder": "Ex: jsmith@company.com or 123456",
     "Verifying": "Verifying..."
+  },
+  "SEC": {
+    "Title": "Security Challenge",
+    "SubTitle": "Answer the following questions to confirm your identity.",
+    "Placeholder": "Enter your answer",
+    "Validate": "Validate"
+  },
+  "Delivery": {
+    "Title": "Delivery Method",
+    "Subtitle": "Select where you would like to receive your One-Time Password (OTP).",
+    "AppConfig": "Authenticator App not configured",
+    "MsgCfg": "Activate your MFA for faster and more secure access next time.",
+    "BtnCfg": "Setup",
+    "SendCode": "Send Code",
+    "Email": "Email"
+  },
+  "AuthOK": {
+    "Title": "Authentication Successful",
+    "SubTitle": "Your identity has been successfully verified.",
+    "Message": "You can now securely access your corporate applications and services.",
+    "GotoPortal": "Go to Portal"
+  },
+  "Token": {
+    "Title": "Code Validation",
+    "SubTitle": "A 6-digit code has been sent to the selected method. Please enter it below.",
+    "CodeExpire": "Code expires in",
+    "ExpireText": "Time has expired.",
+    "Resend": "Resend Code",
+    "Validate": "Authenticate"
+  },
+  "MfaSetup": {
+    "Title": "Setup Authenticator",
+    "SubTitle": "Protect your account with two-step security.",
+    "step1": "Download <strong>Google Authenticator</strong> or <strong>Microsoft Authenticator</strong> on your phone.",
+    "step2": "Open the app and select the <strong>'+'</strong> icon to add a new account.",
+    "step3": "Select <strong>'Scan QR code'</strong> and focus on the image to the right.",
+    "step4": "Enter the 6-digit code displayed on your phone to verify the link.",
+    "Valide": "Verify and Activate"
   }
 }

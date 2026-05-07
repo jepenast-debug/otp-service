@@ -1,17 +1,17 @@
 <div class="ViewContainer">
   <main class="AuthCard MfaCard">
     <div class="CardHeader">
-      <h2>Configurar Autenticador</h2>
-      <p>Protege tu cuenta con seguridad de dos pasos.</p>
+      <h2>{{ 'MfaSetup.Title' |translate}}</h2>
+      <p>{{ 'MfaSetup.SubTitle' |translate}}</p>
     </div>
 
     <div class="MfaGrid">
       <div class="Instructions">
         <ol>
-          <li>Descarga <strong>Google Authenticator</strong> o <strong>Microsoft Authenticator</strong> en tu celular.</li>
-          <li>Abre la aplicación y selecciona el ícono <strong>"+"</strong> para agregar una cuenta.</li>
-          <li>Selecciona <strong>"Escanear código QR"</strong> y enfoca la imagen de la derecha.</li>
-          <li>Ingresa el código de 6 dígitos que aparece en tu celular para verificar la vinculación.</li>
+          <li>{{ 'MfaSetup.step1' |translate}}</li>
+          <li>{{ 'MfaSetup.step2' |translate}}</li>
+          <li>{{ 'MfaSetup.step3' |translate}}</li>
+          <li>{{ 'MfaSetup.step4' |translate}}</li>
         </ol>
       </div>
 
@@ -36,7 +36,7 @@
             class="PrimaryButton" 
             (click)="VerifySetup()" 
             [disabled]="IsLoading() || VerificationCode().length !== 6">
-            Verificar y Activar
+            {{ 'MfaSetup.Valide' |translate}}
           </button>
         </div>
       </div>
@@ -47,7 +47,7 @@
         class="SecondaryButton" 
         (click)="GoBack()" 
         [disabled]="IsLoading()">
-        Volver
+        {{ 'GENERAL.Back' |translate}}
       </button>
     </div>
     </main>

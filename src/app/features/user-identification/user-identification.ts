@@ -23,6 +23,10 @@ export class UserIdentificationComp {
   ErrorMessage = signal('');
   IsLoading = signal(false);
 
+  ngOnInit(){
+    this.HandSession.SetStep(AuthStep.Ident);
+  }
+
   ValidateIdentity(): void {
     const InputValue = this.UserId().trim();
     this.ErrorMessage.set(''); 

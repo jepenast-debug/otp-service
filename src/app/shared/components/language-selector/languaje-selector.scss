@@ -1,0 +1,7 @@
+ .LangSelector {
+      display: flex; align-items: center; gap: 6px; color: #475569;
+    }
+    select {
+      border: none; background: transparent; font-weight: 500;
+      color: #1e293b; cursor: pointer; outline: none;
+    }

@@ -20,10 +20,17 @@
   "SEC": {
     "Title": "Desafío de Seguridad",
     "SubTitle": "Responda las siguientes preguntas para confirmar su identidad.",
-    "Question_1": "¿Cuál es el nombre de su primera mascota?",
-    "Question_2": "¿Cuál es el nombre de su ciudad de nacimiento?",
     "Placeholder": "Ingrese su respuesta",
     "Validate": "Validar"
+  },
+  "Delivery":{
+    "Title":"Método de Envío",
+    "Subtitle":"Seleccione dónde desea recibir su código de seguridad de un solo uso (OTP).",
+    "AppConfig":"App de Autenticación no configurada",
+    "MsgCfg":"Active su MFA para un acceso más rápido y seguro la próxima vez.",
+    "BtnCfg":"Configurar",
+    "SendCode":"Enviar Código",
+    "Email":"Correo Electrónico"
   },
   "AuthOK": {
     "Title": "Autenticación Exitosa",
@@ -31,19 +38,21 @@
     "Message": "Ya puede acceder de forma segura a tus aplicaciones y servicios corporativos.",
     "GotoPortal": "Ir al Portal"
   },
-  "Method": {
-    "Title": "Método de envío",
-    "SubTitle": "Seleccione dónde desea recibir su código de seguridad de un solo uso (OTP).",
-    "Type_1": "Correo Electrónico",
-    "Type_2": "MensajeSMS",
-    "Send": "Enviar Codigo"
-  },
   "Token": {
     "Title": "Validación de Código",
-    "SubTitle": "Se ha enviado un código de 8 dígitos al método seleccionado. Ingréselo a continuación.",
-    "CodeExpire": "El código expira en:",
+    "SubTitle": "Se ha enviado un código de 6 dígitos al método seleccionado. Ingréselo a continuación.",
+    "CodeExpire": "El código expira en",
     "ExpireText":"El tiempo ha expirado.",
     "Resend":"Reenviar Código",
     "Validate": "Autenticar"
+  },
+  "MfaSetup":{
+    "Title":"Configurar Autenticador",
+    "SubTitle":"Protege tu cuenta con seguridad de dos pasos.",
+    "step1":"Descarga <strong>Google Authenticator</strong> o <strong>Microsoft Authenticator</strong> en tu celular.",
+    "step2":"Abre la aplicación y selecciona el ícono <strong>'+'</strong> para agregar una cuenta.",
+    "step3":"Selecciona <strong>'Escanear código QR'</strong> y enfoca la imagen de la derecha.",
+    "step4":"Ingresa el código de 6 dígitos que aparece en tu celular para verificar la vinculación.",
+    "Valide":"Verificar y Activar"
   }
 }

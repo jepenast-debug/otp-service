@@ -13,13 +13,13 @@
     </div>
 
     <div class="CardHeader">
-      <h2>¡Autenticación Exitosa!</h2>
-      <p>Su identidad ha sido verificada correctamente.</p>
+      <h2>¡{{ 'AuthOK.Title' | translate }}!</h2>
+      <p>{{ 'AuthOK.SubTitle' | translate }}</p>
     </div>
 
     <div class="CardBody">
       <div class="InfoBox">
-        <p>Ya puede acceder de forma segura a tus aplicaciones y servicios corporativos.</p>
+        <p>{{ 'AuthOK.Message' | translate }}</p>
       </div>
     </div>
 
@@ -27,7 +27,7 @@
       <button 
         class="PrimaryButton" 
         (click)="GoToPage()">
-        Ingresar al Portal
+        {{ 'AuthOK.GotoPortal' | translate }}
       </button>
     </div>
   </main>
