@@ -5,6 +5,7 @@ import { HandleSession } from '../../core/Handle/HandleSession';
 import { StepperComp } from '../../shared/components/stepper/stepper';
 import { AuthService } from '../../core/services/auth.service';
 import { AuthStep } from '../../core/models/Enums';
+import { Environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-user-identification',
@@ -46,16 +47,18 @@ export class UserIdentificationComp implements OnInit {
     }
 
     this.IsLoading.set(true);
-
     const request = { UserID: InputValue };
     
     // Llamada al backend usando AuthService
-    this.AuthService.IdentifyUser(request,AuthStep.Ident).subscribe({
+    this.AuthService.IdentifyUser(request,AuthStep.Ident,Environment.ReCaptSiteKey).subscribe({
       next: (Response) => {
         if (Response.code === 200 && Response.data.SId) {
           this.HandSession.SetSId(Response.data.SId);
           this.HandSession.MoveStep(AuthStep.SecChallenge);
-        } else {
+        } else if(Response.code===401) {
+          this.IsLoading.set(false);
+          this.ErrorMessage.set('Error de seguridad. Intente de nuevo.');
+        }else {
           this.IsLoading.set(false);
           this.ErrorMessage.set('Error inesperado al validar la identidad.');
         }

@@ -35,10 +35,11 @@ export class AuthService {
   // --- MÉTODOS DE LA API (Código Limpio) ---
   // ==========================================
 
-  IdentifyUser(UserId: IdentReq, Step: AuthStep): Observable<ApiResp<IdentResp>> {
+  IdentifyUser(UserId: IdentReq, Step: AuthStep,CaptchaToken: string): Observable<ApiResp<IdentResp>> {
     const data = { 
       UId: UserId, 
-      Step: Step 
+      Step: Step,
+      Captcha:CaptchaToken
     };
     //return this.http.post<ApiResp<IdentResp>>(`${this.apiUrl}/Identify`, data);
     //SIMULACION

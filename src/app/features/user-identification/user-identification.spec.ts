@@ -28,6 +28,11 @@ describe('UserIdentificationComp (Pantalla de Login)', () => {
   };
 
   beforeEach(async () => {
+    // Mock del objeto global de Google
+    (window as any).grecaptcha = {
+      ready: (cb: Function) => cb(),
+      execute: () => Promise.resolve('mock-token-123')
+    };
     // Limpiamos los rastreadores antes de cada test
     mockHandleSession.stepSet = null;
     mockHandleSession.sidSet = null;

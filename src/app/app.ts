@@ -1,5 +1,7 @@
-import { Component, signal, inject, OnInit } from '@angular/core';
+import { Component, signal, inject, OnInit, Renderer2,Inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { DOCUMENT } from '@angular/common';
+import { Environment } from '../environments/environment';
 
 import { HeaderComp } from './layout/header/header';
 import { FooterComp } from './layout/footer/footer';
@@ -24,7 +26,23 @@ export class App implements OnInit{
   protected readonly Title = signal('OTPService');
   private LangService = inject(LanguageService);
 
+  constructor(
+    private renderer: Renderer2,
+    @Inject(DOCUMENT) private document: Document
+  ) {}
+
   ngOnInit() {
     this.LangService.InitLanguage(); 
+    this.loadReCaptcha();
   }
+
+  private loadReCaptcha() {
+    const script = this.renderer.createElement('script');
+    script.src = `https://www.google.com/recaptcha/api.js?render=${Environment.ReCaptSiteKey}`;
+    script.async = true;
+    script.defer = true;
+
+    this.renderer.appendChild(this.document.head, script);
+  }
+
 }
