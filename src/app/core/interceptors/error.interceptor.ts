@@ -28,6 +28,7 @@ export const ErrorInterceptor: HttpInterceptorFn = (req, next) => {
          SafeErrMsg = error.error;
       }
       ToastServ.Show(SafeErrMsg, 'error');
+      //console.log(error.message);
       return throwError(() => new Error('Error en la solicitud.'));
     })
   );

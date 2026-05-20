@@ -7,28 +7,36 @@ import { inject } from '@angular/core';
 import { HandleSession } from '../Handle/HandleSession';
 import { AuthStep } from '../models/Enums';
 
+
 export const SecurityInterceptor: HttpInterceptorFn = (req:HttpRequest<unknown>, next: HttpHandlerFn) => {
   const HandSession=inject(HandleSession);
   if ((req.method === 'POST' && req.body)){
     return from(CryptoUtils.EncryptReq(req.body)).pipe(
-      switchMap(({ SecPayload, TmpKey, TmpIV }) => {
+      switchMap(({ SecPayload, TmpKey, TmpIV, CKey }) => {
+
         const SecureReq = req.clone({
-          body: `"${SecPayload}"`,
-          responseType: 'text',
+          body: { 
+            data: SecPayload,
+            CKey: CKey
+          },
           setHeaders: { 
             'Content-Type': 'application/json',
-            'X-SID': HandSession.GetSid.toString() || '' 
+            'X-SID': HandSession.GetSid() || ''
           }
         });
         
-        return next(req).pipe(
+        return next(SecureReq).pipe(
           switchMap(event => {
             if (event instanceof HttpResponse && event.body) {
               const BodyData = event.body as any;
               const EncrypData = typeof event.body === 'string' ? event.body : BodyData.data;
-              if (EncrypData) {
+              if (EncrypData && typeof EncrypData === 'string') {
                 return from(CryptoUtils.DecryptResp(EncrypData,TmpKey,TmpIV)).pipe(
-                  map(DecrypBody => event.clone({ body: DecrypBody })),
+                  map(DecrypBody => {
+                    const ParsedData = JSON.parse(DecrypBody);
+                    const NBody = { ...BodyData, data: ParsedData };
+                    return event.clone({ body: NBody });
+                  }),
                   catchError(err => {
                     console.error('Alerta de Seguridad: Fallo en la desencriptación o payload alterado.');
                     HandSession.ClearAllStorage();

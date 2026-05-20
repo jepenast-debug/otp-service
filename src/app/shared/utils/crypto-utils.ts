@@ -24,9 +24,10 @@ export class CryptoUtils {
   }
 
   // --- CIFRADO HÍBRIDO (CLIENTE -> SERVER) ---
-  static async EncryptReq(payload: any): Promise<{ SecPayload: string, TmpKey: CryptoKey, TmpIV: Uint8Array }> {
+  static async EncryptReq(payload: any): Promise<{ SecPayload: string, TmpKey: CryptoKey, TmpIV: Uint8Array, CKey:string }> {
     const Enc = new TextEncoder();
-    const DBytes = Enc.encode(JSON.stringify(this.Sanitize(payload)));
+    //const DBytes = Enc.encode(JSON.stringify(this.Sanitize(payload)));
+    const DBytes = Enc.encode(JSON.stringify(payload));
 
     // AES-GCM
     const IV = window.crypto.getRandomValues(new Uint8Array(12));
@@ -51,6 +52,7 @@ export class CryptoUtils {
         }, false, ['encrypt']
     );
 
+
     const KeysObj = { k: this.BufferToB64(RawAesKey), i: this.BufferToB64(IV.buffer) };
     const EncryptCE = await window.crypto.subtle.encrypt({ 
         name: 'RSA-OAEP' }, 
@@ -58,9 +60,13 @@ export class CryptoUtils {
         Enc.encode(JSON.stringify(KeysObj)
     ));
 
-    const Json = JSON.stringify({ data: this.BufferToB64(EncryptData), CE: this.BufferToB64(EncryptCE) });
-    const SecPayload=btoa(unescape(encodeURIComponent(Json)));
-    return { SecPayload, TmpKey: AKey, TmpIV: IV };
+
+    return { 
+      SecPayload:this.BufferToB64(EncryptData), 
+      TmpKey: AKey, 
+      TmpIV: IV,
+      CKey:this.BufferToB64(EncryptCE) 
+    };
   }
 
   // --- DESCIFRADO (SERVER -> CLIENTE) ---
@@ -90,5 +96,14 @@ export class CryptoUtils {
 
   private static BufferToB64(buffer: ArrayBuffer): string {
     return btoa(String.fromCharCode(...new Uint8Array(buffer)));
+  }
+
+  public static bufferToBase64(buffer: ArrayBuffer | Uint8Array): string {
+    const Bytes = new Uint8Array(buffer);
+    let binary = '';
+    for (let i = 0; i < Bytes.byteLength; i++) {
+      binary += String.fromCharCode(Bytes[i]);
+    }
+    return window.btoa(binary);
   }
 }
