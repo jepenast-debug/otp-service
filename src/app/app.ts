@@ -2,7 +2,7 @@ import { Component, signal, inject, OnInit, Renderer2,Inject } from '@angular/co
 import { RouterOutlet } from '@angular/router';
 import { DOCUMENT } from '@angular/common';
 import { Environment } from '../environments/environment';
-
+import { CleanupService } from './core/services/auto-cleanup';
 import { HeaderComp } from './layout/header/header';
 import { FooterComp } from './layout/footer/footer';
 import { LoadingComp } from './shared/components/loading/loading';
@@ -25,6 +25,7 @@ import { LanguageService } from './core/services/language.service';
 export class App implements OnInit{
   protected readonly Title = signal('OTPService');
   private LangService = inject(LanguageService);
+  private CleanupService = inject(CleanupService);
 
   constructor(
     private renderer: Renderer2,
@@ -34,6 +35,7 @@ export class App implements OnInit{
   ngOnInit() {
     this.LangService.InitLanguage(); 
     this.loadReCaptcha();
+     this.CleanupService.StartTimer();
   }
 
   private loadReCaptcha() {
