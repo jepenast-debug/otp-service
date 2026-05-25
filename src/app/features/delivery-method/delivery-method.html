@@ -36,7 +36,11 @@
               <span class="ChannelType">{{ Channel.Type === 'Email' ? 'Correo Electrónico' : 'App de Autenticación' }}</span>
               
               <span class="ChannelMask">
-                {{ Channel.MaskedValue | mask: (Channel.Type === 'Email' ? 'email' : 'phone') }}
+                @if (Channel.Type === 'App') {
+                  {{ Channel.MaskedValue }}
+                } @else {
+                  {{ Channel.MaskedValue | mask: (Channel.Type === 'Email' ? 'email' : 'phone') }}
+                }
               </span>
             </div>
 

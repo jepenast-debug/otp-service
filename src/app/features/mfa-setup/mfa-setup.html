@@ -29,7 +29,7 @@
             type="text" 
             maxlength="6" 
             placeholder="000000"
-            [(ngModel)]="VerificationCode"
+            [ngModel]="VerificationCode()"
             (ngModelChange)="VerificationCode.set($event)"
             class="AnswerInput CodeInput"
           />

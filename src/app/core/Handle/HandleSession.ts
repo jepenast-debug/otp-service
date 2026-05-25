@@ -79,8 +79,8 @@ export class HandleSession {
     }
 
     RefreshStep(): void {
-        this.SId= this.SessionService.sid;
-        this.Step= this.SessionService.Step;
+        //this.SId= this.SessionService.sid;
+        //this.Step= this.SessionService.Step;
     }
 
     MoveStep(StepAct:AuthStep): void {

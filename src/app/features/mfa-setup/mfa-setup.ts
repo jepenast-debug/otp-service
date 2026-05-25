@@ -42,7 +42,7 @@ export class MfaSetupComp implements OnInit {
 
   // 2. CARGA DEL CÓDIGO QR
   LoadMfaSetupData(): void {
-    const sid = this.HandSession.GetStep() || '';
+    const sid = this.HandSession.GetSid() || '';
     this.IsLoading.set(true);
 
     //TODO: Reemplazar con tu método real del AuthService que trae el QR

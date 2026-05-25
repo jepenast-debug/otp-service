@@ -24,6 +24,6 @@ export class AuthSuccessComp implements OnInit {
 
   GoToPage(): void {
     //this.Location.go(this.HandSession.GetUrl()+"/otplogin");
-    window.location.href.(this.HandSession.GetUrl()+"/otplogin");
+    window.location.href = this.HandSession.GetUrl() + "/otplogin";
   }
 }
