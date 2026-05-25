@@ -75,7 +75,7 @@ export class HandleSession {
 
     CreateCookie(name: string, value: string, Hours?: number): void {
         const expires = Hours ? `; expires=${new Date(Date.now() + 86400000).toUTCString()}` : '';
-        document.cookie = `${name}=${value}${expires}; path=/; secure; samesite=lax`;
+        //document.cookie = `${name}=${value}${expires}; path=/; secure; samesite=lax`;
     }
 
     RefreshStep(): void {

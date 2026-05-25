@@ -81,15 +81,11 @@ describe('CryptoUtils', () => {
       // 1. El Frontend encripta (Generando AES Key y IV dinámicos)
       const { SecPayload, TmpKey, TmpIV } = await CryptoUtils.EncryptReq(originalPayload);
       
-      // 2. Simulamos la extracción de datos como lo haría el interceptor
-      // (Desempaquetamos el Base64 principal para sacar la propiedad "data")
-      const decodedPayloadStr = decodeURIComponent(escape(atob(SecPayload)));
-      const parsedPayload = JSON.parse(decodedPayloadStr);
+      // 2. Desciframos usando el motor de respuesta, pasándole el SecPayload directamente
+      // (tal como lo hace tu SecurityInterceptor)
+      const decryptedResult = await CryptoUtils.DecryptResp(SecPayload, TmpKey, TmpIV);
       
-      // 3. Desciframos usando el motor de respuesta, pasándole la misma llave que se generó en el paso 1
-      const decryptedResult = await CryptoUtils.DecryptResp(parsedPayload.data, TmpKey, TmpIV);
-      
-      // Si esto es exitoso, demuestra que la arquitectura Perfect Forward Secrecy funciona impecable
+      // 3. Verificamos que el mensaje recuperado sea exactamente el original
       expect(decryptedResult.message).toBe('Mensaje Altamente Secreto');
     });
   });

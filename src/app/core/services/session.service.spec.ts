@@ -49,7 +49,7 @@ describe('SessionService (Ofuscación de Estado)', () => {
     expect(service.sid).toBeFalsy();
     
     // 4. Verificamos que el almacenamiento físico del navegador haya sido purgado
-    expect(sessionStorage.getItem('SID')).toBeNull();
-    expect(sessionStorage.getItem('Step')).toBeNull();
+    expect(sessionStorage.getItem('sid')).toBeNull();
+    expect(sessionStorage.getItem('Record')).toBeNull();
   });
 });

@@ -10,32 +10,33 @@ describe('TokenValidationComp (Pantalla de Código OTP)', () => {
   let component: TokenValidationComp;
   let fixture: ComponentFixture<TokenValidationComp>;
 
-  // 1. Respuestas simuladas del Backend
-  let authServiceResponse = of({ code: 200, data: { status: 'success' } });
+  // 1. Mock del backend adaptado a tu AuthService real
+  let authServiceResponse = of({ code: 200, data: { AccessToken: 'mock-token', UrlReturn: '/dashboard' } });
   
   const mockAuthService = {
-    // Ajusta el nombre de este método si en tu AuthService se llama distinto (ej. VerifyOTP)
-    ValidateOTP: function() { return authServiceResponse; } 
+    ValidateOtp: function() { return authServiceResponse; } 
   };
 
-  // 2. Rastreadores para el guardián de sesión
   const mockHandleSession = {
     stepSet: null as any,
     stepMoved: null as any,
     SetStep: function(step: any) { this.stepSet = step; },
-    MoveStep: function(step: any) { this.stepMoved = step; }
+    MoveStep: function(step: any) { this.stepMoved = step; },
+    GetSid: function() { return 'user-123'; },
+    SetRespItem: function() {},
+    SetUrl: function() {},
+    CreateCookie: function() {}
   };
 
   beforeEach(async () => {
-    // Limpiamos los rastreadores
     mockHandleSession.stepSet = null;
     mockHandleSession.stepMoved = null;
-    authServiceResponse = of({ code: 200, data: { status: 'success' } });
+    authServiceResponse = of({ code: 200, data: { AccessToken: 'mock-token', UrlReturn: '/dashboard' } });
 
     await TestBed.configureTestingModule({
       imports: [
         TokenValidationComp,
-        TranslateModule.forRoot() // Previene errores de i18n
+        TranslateModule.forRoot()
       ],
       providers: [
         { provide: AuthService, useValue: mockAuthService },
@@ -48,38 +49,27 @@ describe('TokenValidationComp (Pantalla de Código OTP)', () => {
     fixture.detectChanges();
   });
 
-  it('debería inicializarse y registrar el paso en el SessionService', () => {
-    // Verifica que el componente avisó que estamos en el paso de OTP
-    expect(mockHandleSession.stepSet).toBeDefined();
+  it('debería inicializarse correctamente', () => {
+    expect(component).toBeTruthy();
   });
 
   it('debería procesar correctamente un token válido y avanzar al éxito', () => {
-    // Si tus variables se llaman distinto, cámbialas aquí:
-    // Asumimos que tienes un signal llamado TokenCode y un método ValidateToken
-    if ((component as any).TokenCode && (component as any).ValidateToken) {
-      (component as any).TokenCode.set('123456');
-      (component as any).ValidateToken();
+    // Seteamos los 6 dígitos del OTP en la señal CodeDigits
+    component.CodeDigits.set(['1', '2', '3', '4', '5', '6']);
+    component.ValidateToken();
 
-      // Verificamos que el guardia recibió la orden de avanzar
-      expect(mockHandleSession.stepMoved).toBeDefined();
-    } else {
-      // Test de paso seguro si los nombres no coinciden exactamente
-      expect(true).toBe(true); 
-    }
+    // Verificamos que el guardia de sesión recibió la instrucción de redirección
+    expect(mockHandleSession.stepMoved).toBe(AuthStep.AccessGranted);
   });
 
-  it('debería manejar errores del backend (ej. Código Inválido)', () => {
-    authServiceResponse = throwError(() => new Error('Invalid Code'));
+  it('debería manejar errores de código incorrecto del backend', () => {
+    // Simulamos respuesta de error
+    authServiceResponse = of({ code: 400, msg: 'Código incorrecto', data: null as any });
     
-    if ((component as any).TokenCode && (component as any).ValidateToken) {
-      (component as any).TokenCode.set('999999');
-      (component as any).ValidateToken();
+    component.CodeDigits.set(['9', '9', '9', '9', '9', '9']);
+    component.ValidateToken();
 
-      // Asumiendo que tienes un signal ErrorMessage como en la pantalla anterior
-      if ((component as any).ErrorMessage) {
-        expect((component as any).ErrorMessage()).not.toBe('');
-      }
-    }
-    expect(true).toBe(true);
+    expect(component.IsLoading()).toBe(false);
+    expect(component.ErrorMessage()).toBe('Código incorrecto.');
   });
 });
