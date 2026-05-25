@@ -15,9 +15,6 @@ export const appConfig: ApplicationConfig = {
       withInterceptors([SecurityInterceptor,ErrorInterceptor]) //Se interceptan las respuestas para desencriptarlas antes de que lleguen a los servicios.
     ),
     provideTranslateService({
-      defaultLanguage: 'es'
-    }),
-    provideTranslateService({
       fallbackLang: 'es',
       loader: provideTranslateHttpLoader({
         prefix: '/assets/i18n/', 

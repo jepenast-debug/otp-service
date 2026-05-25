@@ -4,7 +4,7 @@
   <main class="AuthCard">
     <div class="CardHeader">
       <h2>{{'Delivery.Title' | translate }}</h2>
-      <p>{{'Delivery.Subtitle' | translate }}<</p>
+      <p>{{'Delivery.Subtitle' | translate }}</p>
     </div>
 
     <div class="CardBody">
@@ -33,7 +33,7 @@
             </div>
             
             <div class="ChannelDetails">
-              <span class="ChannelType">{{ Channel.Type === 'Email' ? 'Correo Electrónico' : 'Mensaje SMS' }}</span>
+              <span class="ChannelType">{{ Channel.Type === 'Email' ? 'Correo Electrónico' : 'App de Autenticación' }}</span>
               
               <span class="ChannelMask">
                 {{ Channel.MaskedValue | mask: (Channel.Type === 'Email' ? 'email' : 'phone') }}

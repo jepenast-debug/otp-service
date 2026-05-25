@@ -72,7 +72,7 @@ export class MfaSetupComp implements OnInit {
     const Code = this.VerificationCode().trim();
 
     this.ErrorMessage.set('');
-    if(this.HandSession.CheckStep(AuthStep.MfaSetup)){
+    if(!this.HandSession.CheckStep(AuthStep.MfaSetup)){
       return;
     }
 

@@ -50,7 +50,7 @@ export class SessionService {
   Clear(): void {
     sessionStorage.removeItem('sid');
     sessionStorage.removeItem('Record');
-    sessionStorage.removeItem('url');
+    sessionStorage.removeItem('Url');
     this._sid.set(null);
     this._step.set(AuthStep.Ident);
   }

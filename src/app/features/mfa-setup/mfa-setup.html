@@ -30,6 +30,7 @@
             maxlength="6" 
             placeholder="000000"
             [(ngModel)]="VerificationCode"
+            (ngModelChange)="VerificationCode.set($event)"
             class="AnswerInput CodeInput"
           />
           <button 

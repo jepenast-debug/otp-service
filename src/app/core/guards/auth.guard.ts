@@ -6,8 +6,8 @@ import { AuthStep } from '../models/Enums';
 export const AuthGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
   const handSession = inject(HandleSession);
-  const userId = handSession.GetSid;
-  const CurrentStep = handSession.GetStep;
+  const userId = handSession.GetSid();
+  const CurrentStep = handSession.GetStep();
   const ExpectStep = route.data['Step'] as AuthStep;
 
   if (!userId) {

@@ -109,6 +109,7 @@ export class DeliveryMethodComp implements OnInit {
       next: (response) => {
         if (response.code === 200) {
           // Guardamos en sesión el tipo elegido para el paso 4
+          this.HandSession.SetRespItem("SelectedMfa","1");
           this.HandSession.MoveStep(AuthStep.OtpValidation);
         } else {
           this.IsLoading.set(false);

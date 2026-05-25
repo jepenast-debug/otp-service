@@ -11,8 +11,10 @@ export class HandleSession {
 
     private Router = inject(Router);
     private SessionService = inject(SessionService);
-    private SId = this.SessionService.sid;
-    private Step = this.SessionService.Step;
+    get SId() { return this.SessionService.sid; }
+    get Step() { return this.SessionService.Step; }
+    //private SId = this.SessionService.sid;
+    //private Step = this.SessionService.Step;
 
     CheckStep(StepAct:AuthStep): boolean {
         if (!this.SId || this.Step !=StepAct) {
